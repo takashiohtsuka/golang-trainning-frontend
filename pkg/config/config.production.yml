@@ -1,0 +1,23 @@
+skip_db: true
+
+database:
+  user: root
+  password: root
+  net: tcp
+  addr: 127.0.0.1:3306
+  dbname: golang_clean_architecture
+  allowNativePasswords: true
+  params:
+    parseTime: "true"
+
+server:
+  address: 8080
+
+storage:
+  endpoint: ""
+  accessKeyID: ""
+  secretAccessKey: ""
+  useSSL: true
+  buckets:
+    womanImage: golang-trainning-woman-images
+    blogImage: golang-trainning-blog-images
