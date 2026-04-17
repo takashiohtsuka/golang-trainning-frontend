@@ -27,7 +27,8 @@ type config struct {
 		}
 	}
 	Server struct {
-		Address string
+		Address      string
+		AllowOrigins []string `mapstructure:"allow_origins"`
 	}
 	Storage struct {
 		Endpoint        string

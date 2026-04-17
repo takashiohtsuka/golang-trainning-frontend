@@ -10,6 +10,9 @@ database:
 
 server:
   address: 8080
+  allow_origins:
+    - "http://localhost:3000"
+    - "http://localhost:3002"
 
 storage:
   endpoint: http://minio:9000
