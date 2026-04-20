@@ -3,10 +3,10 @@ package outputport
 import (
 	"context"
 
-	"golang-trainning-frontend/pkg/domain/collection"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/collection"
+	"golang-trainning-frontend/pkg/dto"
 )
 
 type WomanRegionRepository interface {
-	FindPickupByRegion(ctx context.Context, regionID uint) (collection.Collection[entity.WomanEntity], error)
+	FindPickupByRegion(ctx context.Context, regionID uint) (collection.Collection[dto.WomanDTO], error)
 }

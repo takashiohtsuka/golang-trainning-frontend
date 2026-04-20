@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"golang-trainning-frontend/pkg/apperror"
-	"golang-trainning-frontend/pkg/domain/collection"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/collection"
+	"golang-trainning-frontend/pkg/dto"
 	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/inputport"
 	"golang-trainning-frontend/pkg/usecase/outputport"
@@ -20,17 +20,17 @@ func NewWomanUsecase(womanRepository outputport.WomanRepository) inputport.Woman
 	return &womanUsecase{womanRepository}
 }
 
-func (u *womanUsecase) GetList(ctx context.Context, i input.GetWomanListInput) (collection.Collection[entity.WomanEntity], error) {
+func (u *womanUsecase) GetList(ctx context.Context, i input.GetWomanListInput) (collection.Collection[dto.WomanDTO], error) {
 	return u.womanRepository.FindAll(ctx, []query.Condition{})
 }
 
-func (u *womanUsecase) GetStoreWomanList(ctx context.Context, i input.GetStoreWomanListInput) (collection.Collection[entity.WomanEntity], error) {
+func (u *womanUsecase) GetStoreWomanList(ctx context.Context, i input.GetStoreWomanListInput) (collection.Collection[dto.WomanDTO], error) {
 	return u.womanRepository.FindAll(ctx, []query.Condition{
 		query.Where("wsa.store_id", i.StoreID),
 	})
 }
 
-func (u *womanUsecase) GetDetail(ctx context.Context, i input.GetWomanDetailInput) (entity.WomanEntity, error) {
+func (u *womanUsecase) GetDetail(ctx context.Context, i input.GetWomanDetailInput) (dto.WomanDTO, error) {
 	woman, err := u.womanRepository.FindOne(ctx, []query.Condition{
 		query.Where("w.id", i.WomanID),
 	})

@@ -1,6 +1,6 @@
 package stores
 
-import "golang-trainning-frontend/pkg/domain/entity"
+import "golang-trainning-frontend/pkg/dto"
 
 // --- list ---
 
@@ -37,7 +37,7 @@ type DetailResponse struct {
 
 // --- builders ---
 
-func NewListResponse(stores []entity.StoreEntity) ListResponse {
+func NewListResponse(stores []dto.StoreDTO) ListResponse {
 	items := make([]StoreListItem, 0, len(stores))
 	for _, s := range stores {
 		items = append(items, toStoreListItem(s))
@@ -45,7 +45,7 @@ func NewListResponse(stores []entity.StoreEntity) ListResponse {
 	return ListResponse{Stores: items}
 }
 
-func toStoreListItem(s entity.StoreEntity) StoreListItem {
+func toStoreListItem(s dto.StoreDTO) StoreListItem {
 	return StoreListItem{
 		ID:           s.GetID(),
 		Name:         s.GetName(),
@@ -54,7 +54,7 @@ func toStoreListItem(s entity.StoreEntity) StoreListItem {
 	}
 }
 
-func NewDetailResponse(s entity.StoreEntity) DetailResponse {
+func NewDetailResponse(s dto.StoreDTO) DetailResponse {
 	return DetailResponse{
 		ID:           s.GetID(),
 		Name:         s.GetName(),
@@ -63,7 +63,7 @@ func NewDetailResponse(s entity.StoreEntity) DetailResponse {
 	}
 }
 
-func toWomenItems(s entity.StoreEntity) []WomanItem {
+func toWomenItems(s dto.StoreDTO) []WomanItem {
 	women := make([]WomanItem, 0)
 	for _, w := range s.GetWomen().All() {
 		blogs := make([]BlogItem, 0)

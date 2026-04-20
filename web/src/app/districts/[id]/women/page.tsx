@@ -1,4 +1,4 @@
-import WomenList from "./WomenList";
+import WomenPageClient from "./WomenPageClient";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -10,7 +10,7 @@ export default async function Page({ params }: Props) {
   return (
     <main>
       <h1>District {id} の女性一覧</h1>
-      <WomenList districtId={id} />
+      <WomenPageClient districtId={id} />
     </main>
   );
 }

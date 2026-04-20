@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"golang-trainning-frontend/pkg/domain/collection"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/collection"
+	"golang-trainning-frontend/pkg/dto"
 	womanMapper "golang-trainning-frontend/pkg/adapter/mapper/woman"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 	"golang-trainning-frontend/pkg/helper"
@@ -23,7 +23,7 @@ func NewWomanRepository(db *gorm.DB) outputport.WomanRepository {
 	return &womanRepository{db: db}
 }
 
-func (r *womanRepository) FindAll(ctx context.Context, conditions []query.Condition) (collection.Collection[entity.WomanEntity], error) {
+func (r *womanRepository) FindAll(ctx context.Context, conditions []query.Condition) (collection.Collection[dto.WomanDTO], error) {
 	where, args := buildWhereClause(conditions)
 
 	sql := `
@@ -56,12 +56,12 @@ func (r *womanRepository) FindAll(ctx context.Context, conditions []query.Condit
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, allArgs...).Scan(&rows).Error; err != nil {
-		return collection.NewCollection[entity.WomanEntity](nil), err
+		return collection.NewCollection[dto.WomanDTO](nil), err
 	}
-	return womanMapper.MapToAggregate(rows), nil
+	return womanMapper.MapToDTO(rows), nil
 }
 
-func (r *womanRepository) FindOne(ctx context.Context, conditions []query.Condition) (entity.WomanEntity, error) {
+func (r *womanRepository) FindOne(ctx context.Context, conditions []query.Condition) (dto.WomanDTO, error) {
 	where, args := buildWhereClause(conditions)
 
 	sql := `
@@ -91,20 +91,20 @@ func (r *womanRepository) FindOne(ctx context.Context, conditions []query.Condit
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, args...).Scan(&rows).Error; err != nil {
-		return &entity.NilWoman{}, err
+		return &dto.NilWoman{}, err
 	}
 	if len(rows) == 0 {
-		return &entity.NilWoman{}, nil
+		return &dto.NilWoman{}, nil
 	}
 
 	return mapToWomanOne(rows), nil
 }
 
-func mapToWomanOne(rows []map[string]any) entity.WomanEntity {
+func mapToWomanOne(rows []map[string]any) dto.WomanDTO {
 	base := rows[0]
 	womanID := helper.ToUint(base["woman_id"])
 
-	w := &entity.Woman{
+	w := &dto.Woman{
 		ID:         womanID,
 		Name:       helper.ToString(base["woman_name"]),
 		Age:        helper.ToIntPtr(base["age"]),
@@ -113,28 +113,28 @@ func mapToWomanOne(rows []map[string]any) entity.WomanEntity {
 		Hobby:      helper.ToStringPtr(base["hobby"]),
 	}
 
-	seenAssignments := make(map[uint]bool)
+	seenStores := make(map[uint]bool)
 	seenImages := make(map[uint]bool)
 	seenBlogs := make(map[uint]bool)
 	seenPhotos := make(map[uint]map[uint]bool)
 
 	for _, row := range rows {
 		assignmentID := helper.ToUint(row["assignment_id"])
-		if assignmentID != 0 && !seenAssignments[assignmentID] {
-			seenAssignments[assignmentID] = true
-			current := w.StoreAssignments.All()
-			current = append(current, entity.WomanStoreAssignment{
-				ID:      assignmentID,
-				StoreID: helper.ToUint(row["assignment_store_id"]),
+		if assignmentID != 0 && !seenStores[assignmentID] {
+			seenStores[assignmentID] = true
+			stores := w.Stores.All()
+			stores = append(stores, dto.WomanStore{
+				ID:   helper.ToUint(row["assignment_store_id"]),
+				Name: helper.ToString(row["assignment_store_name"]),
 			})
-			w.StoreAssignments = collection.NewCollection(current)
+			w.Stores = collection.NewCollection(stores)
 		}
 
 		imageID := helper.ToUint(row["image_id"])
 		if imageID != 0 && !seenImages[imageID] {
 			seenImages[imageID] = true
 			current := w.Images.All()
-			current = append(current, entity.WomanImage{
+			current = append(current, dto.WomanImage{
 				ID:   imageID,
 				Path: helper.ToString(row["image_path"]),
 			})
@@ -146,13 +146,13 @@ func mapToWomanOne(rows []map[string]any) entity.WomanEntity {
 			seenBlogs[blogID] = true
 			seenPhotos[blogID] = make(map[uint]bool)
 			current := w.Blogs.All()
-			current = append(current, &entity.Blog{
+			current = append(current, &dto.Blog{
 				ID:          blogID,
 				WomanID:     womanID,
 				Title:       helper.ToString(row["blog_title"]),
 				Body:        helper.ToStringPtr(row["blog_body"]),
 				IsPublished: true,
-				Photos:      collection.NewCollection[entity.Photo](nil),
+				Photos:      collection.NewCollection[dto.Photo](nil),
 			})
 			w.Blogs = collection.NewCollection(current)
 		}
@@ -164,11 +164,11 @@ func mapToWomanOne(rows []map[string]any) entity.WomanEntity {
 			for i, b := range blogs {
 				if b.GetID() == blogID {
 					photos := b.GetPhotos().All()
-					photos = append(photos, entity.Photo{
+					photos = append(photos, dto.Photo{
 						ID:  photoID,
 						URL: helper.ToString(row["photo_url"]),
 					})
-					blogs[i].(*entity.Blog).Photos = collection.NewCollection(photos)
+					blogs[i].(*dto.Blog).Photos = collection.NewCollection(photos)
 					break
 				}
 			}

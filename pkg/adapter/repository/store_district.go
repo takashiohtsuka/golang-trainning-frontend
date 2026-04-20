@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"golang-trainning-frontend/pkg/domain/collection"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/collection"
+	"golang-trainning-frontend/pkg/dto"
 	storeMapper "golang-trainning-frontend/pkg/adapter/mapper/store"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 	"golang-trainning-frontend/pkg/usecase/query"
@@ -26,12 +26,12 @@ func NewStoreDistrictRepository(db *gorm.DB) outputport.StoreDistrictRepository 
 	return &storeDistrictRepository{db: db}
 }
 
-func (r *storeDistrictRepository) FindAll(ctx context.Context, conditions []query.Condition) (collection.Collection[entity.StoreEntity], error) {
+func (r *storeDistrictRepository) FindAll(ctx context.Context, conditions []query.Condition) (collection.Collection[dto.StoreDTO], error) {
 	rows, err := r.query(ctx, conditions)
 	if err != nil {
-		return collection.NewCollection[entity.StoreEntity](nil), err
+		return collection.NewCollection[dto.StoreDTO](nil), err
 	}
-	return storeMapper.MapToAggregate(rows), nil
+	return storeMapper.MapToDTO(rows), nil
 }
 
 func (r *storeDistrictRepository) query(ctx context.Context, conditions []query.Condition) ([]map[string]any, error) {

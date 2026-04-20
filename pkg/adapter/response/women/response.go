@@ -1,6 +1,6 @@
 package women
 
-import "golang-trainning-frontend/pkg/domain/entity"
+import "golang-trainning-frontend/pkg/dto"
 
 // --- list ---
 
@@ -9,20 +9,21 @@ type ListResponse struct {
 }
 
 type WomanListItem struct {
-	ID               uint                  `json:"id"`
-	Name             string                `json:"name"`
-	Age              *int                  `json:"age"`
-	Birthplace       *string               `json:"birthplace"`
-	BloodType        *string               `json:"blood_type"`
-	Hobby            *string               `json:"hobby"`
-	StoreAssignments []StoreAssignmentItem `json:"store_assignments"`
-	Images           []ImageItem           `json:"images"`
-	Blogs            []BlogListItem        `json:"blogs"`
+	ID         uint          `json:"id"`
+	Name       string        `json:"name"`
+	Age        *int          `json:"age"`
+	Birthplace *string       `json:"birthplace"`
+	BloodType  *string       `json:"blood_type"`
+	Hobby      *string       `json:"hobby"`
+	Stores     []StoreItem   `json:"stores"`
+	Images     []ImageItem   `json:"images"`
+	Blogs      []BlogListItem `json:"blogs"`
 }
 
-type StoreAssignmentItem struct {
-	ID      uint `json:"id"`
-	StoreID uint `json:"store_id"`
+type StoreItem struct {
+	ID           uint   `json:"id"`
+	Name         string `json:"name"`
+	BusinessType string `json:"business_type"`
 }
 
 type ImageItem struct {
@@ -38,15 +39,15 @@ type BlogListItem struct {
 // --- detail ---
 
 type DetailResponse struct {
-	ID               uint                  `json:"id"`
-	Name             string                `json:"name"`
-	Age              *int                  `json:"age"`
-	Birthplace       *string               `json:"birthplace"`
-	BloodType        *string               `json:"blood_type"`
-	Hobby            *string               `json:"hobby"`
-	StoreAssignments []StoreAssignmentItem `json:"store_assignments"`
-	Images           []ImageItem           `json:"images"`
-	Blogs            []BlogDetailItem      `json:"blogs"`
+	ID         uint             `json:"id"`
+	Name       string           `json:"name"`
+	Age        *int             `json:"age"`
+	Birthplace *string          `json:"birthplace"`
+	BloodType  *string          `json:"blood_type"`
+	Hobby      *string          `json:"hobby"`
+	Stores     []StoreItem      `json:"stores"`
+	Images     []ImageItem      `json:"images"`
+	Blogs      []BlogDetailItem `json:"blogs"`
 }
 
 type BlogDetailItem struct {
@@ -63,7 +64,7 @@ type PhotoItem struct {
 
 // --- builders ---
 
-func NewListResponse(women []entity.WomanEntity) ListResponse {
+func NewListResponse(women []dto.WomanDTO) ListResponse {
 	items := make([]WomanListItem, 0, len(women))
 	for _, w := range women {
 		items = append(items, toWomanListItem(w))
@@ -71,12 +72,13 @@ func NewListResponse(women []entity.WomanEntity) ListResponse {
 	return ListResponse{Women: items}
 }
 
-func toWomanListItem(w entity.WomanEntity) WomanListItem {
-	assignments := make([]StoreAssignmentItem, 0)
-	for _, a := range w.GetStoreAssignments().All() {
-		assignments = append(assignments, StoreAssignmentItem{
-			ID:      a.ID,
-			StoreID: a.StoreID,
+func toWomanListItem(w dto.WomanDTO) WomanListItem {
+	stores := make([]StoreItem, 0)
+	for _, s := range w.GetStores().All() {
+		stores = append(stores, StoreItem{
+			ID:           s.ID,
+			Name:         s.Name,
+			BusinessType: s.BusinessType.GetCode(),
 		})
 	}
 
@@ -97,24 +99,25 @@ func toWomanListItem(w entity.WomanEntity) WomanListItem {
 	}
 
 	return WomanListItem{
-		ID:               w.GetID(),
-		Name:             w.GetName(),
-		Age:              w.GetAge(),
-		Birthplace:       w.GetBirthplace(),
-		BloodType:        w.GetBloodType(),
-		Hobby:            w.GetHobby(),
-		StoreAssignments: assignments,
-		Images:           images,
-		Blogs:            blogs,
+		ID:         w.GetID(),
+		Name:       w.GetName(),
+		Age:        w.GetAge(),
+		Birthplace: w.GetBirthplace(),
+		BloodType:  w.GetBloodType(),
+		Hobby:      w.GetHobby(),
+		Stores:     stores,
+		Images:     images,
+		Blogs:      blogs,
 	}
 }
 
-func NewDetailResponse(w entity.WomanEntity) DetailResponse {
-	assignments := make([]StoreAssignmentItem, 0)
-	for _, a := range w.GetStoreAssignments().All() {
-		assignments = append(assignments, StoreAssignmentItem{
-			ID:      a.ID,
-			StoreID: a.StoreID,
+func NewDetailResponse(w dto.WomanDTO) DetailResponse {
+	stores := make([]StoreItem, 0)
+	for _, s := range w.GetStores().All() {
+		stores = append(stores, StoreItem{
+			ID:           s.ID,
+			Name:         s.Name,
+			BusinessType: s.BusinessType.GetCode(),
 		})
 	}
 
@@ -144,14 +147,14 @@ func NewDetailResponse(w entity.WomanEntity) DetailResponse {
 	}
 
 	return DetailResponse{
-		ID:               w.GetID(),
-		Name:             w.GetName(),
-		Age:              w.GetAge(),
-		Birthplace:       w.GetBirthplace(),
-		BloodType:        w.GetBloodType(),
-		Hobby:            w.GetHobby(),
-		StoreAssignments: assignments,
-		Images:           images,
-		Blogs:            blogs,
+		ID:         w.GetID(),
+		Name:       w.GetName(),
+		Age:        w.GetAge(),
+		Birthplace: w.GetBirthplace(),
+		BloodType:  w.GetBloodType(),
+		Hobby:      w.GetHobby(),
+		Stores:     stores,
+		Images:     images,
+		Blogs:      blogs,
 	}
 }

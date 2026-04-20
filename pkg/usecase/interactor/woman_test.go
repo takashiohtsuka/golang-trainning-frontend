@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"golang-trainning-frontend/pkg/apperror"
-	"golang-trainning-frontend/pkg/domain/collection"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/collection"
+	"golang-trainning-frontend/pkg/dto"
 	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/interactor"
 	"golang-trainning-frontend/pkg/usecase/query"
@@ -20,20 +20,20 @@ import (
 
 type mockWomanRepository struct {
 	findAllConditions []query.Condition
-	findAllReturn     collection.Collection[entity.WomanEntity]
+	findAllReturn     collection.Collection[dto.WomanDTO]
 	findAllError      error
 
 	findOneConditions []query.Condition
-	findOneReturn     entity.WomanEntity
+	findOneReturn     dto.WomanDTO
 	findOneError      error
 }
 
-func (m *mockWomanRepository) FindAll(_ context.Context, conditions []query.Condition) (collection.Collection[entity.WomanEntity], error) {
+func (m *mockWomanRepository) FindAll(_ context.Context, conditions []query.Condition) (collection.Collection[dto.WomanDTO], error) {
 	m.findAllConditions = conditions
 	return m.findAllReturn, m.findAllError
 }
 
-func (m *mockWomanRepository) FindOne(_ context.Context, conditions []query.Condition) (entity.WomanEntity, error) {
+func (m *mockWomanRepository) FindOne(_ context.Context, conditions []query.Condition) (dto.WomanDTO, error) {
 	m.findOneConditions = conditions
 	return m.findOneReturn, m.findOneError
 }
@@ -42,7 +42,7 @@ func (m *mockWomanRepository) FindOne(_ context.Context, conditions []query.Cond
 
 func TestWomanUsecase_GetList_WithNoStoreID_PassesEmptyConditions(t *testing.T) {
 	mock := &mockWomanRepository{
-		findAllReturn: collection.NewCollection[entity.WomanEntity](nil),
+		findAllReturn: collection.NewCollection[dto.WomanDTO](nil),
 	}
 	u := interactor.NewWomanUsecase(mock)
 
@@ -54,7 +54,7 @@ func TestWomanUsecase_GetList_WithNoStoreID_PassesEmptyConditions(t *testing.T) 
 
 func TestWomanUsecase_GetStoreWomanList_PassesStoreIDCondition(t *testing.T) {
 	mock := &mockWomanRepository{
-		findAllReturn: collection.NewCollection[entity.WomanEntity](nil),
+		findAllReturn: collection.NewCollection[dto.WomanDTO](nil),
 	}
 	u := interactor.NewWomanUsecase(mock)
 
@@ -82,7 +82,7 @@ func TestWomanUsecase_GetList_WhenRepositoryFails_ReturnsError(t *testing.T) {
 
 func TestWomanUsecase_GetDetail_PassesWomanIDCondition(t *testing.T) {
 	mock := &mockWomanRepository{
-		findOneReturn: &entity.Woman{ID: 42, Name: "女性1"},
+		findOneReturn: &dto.Woman{ID: 42, Name: "女性1"},
 	}
 	u := interactor.NewWomanUsecase(mock)
 
@@ -96,7 +96,7 @@ func TestWomanUsecase_GetDetail_PassesWomanIDCondition(t *testing.T) {
 
 func TestWomanUsecase_GetDetail_WhenNotFound_ReturnsNotFoundException(t *testing.T) {
 	mock := &mockWomanRepository{
-		findOneReturn: &entity.NilWoman{},
+		findOneReturn: &dto.NilWoman{},
 	}
 	u := interactor.NewWomanUsecase(mock)
 

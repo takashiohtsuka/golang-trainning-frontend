@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"golang-trainning-frontend/pkg/domain/collection"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/collection"
+	"golang-trainning-frontend/pkg/dto"
 	storeMapper "golang-trainning-frontend/pkg/adapter/mapper/store"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 
@@ -19,7 +19,7 @@ func NewStorePrefectureRepository(db *gorm.DB) outputport.StorePrefectureReposit
 	return &storePrefectureRepository{db: db}
 }
 
-func (r *storePrefectureRepository) FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[entity.StoreEntity], error) {
+func (r *storePrefectureRepository) FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[dto.StoreDTO], error) {
 	sql := `
 		SELECT
 			s.id            AS store_id,
@@ -63,7 +63,7 @@ func (r *storePrefectureRepository) FindAllByPrefecture(ctx context.Context, pre
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, storeWomenLimit, storeBlogsPerWomanLimit, prefectureID).Scan(&rows).Error; err != nil {
-		return collection.NewCollection[entity.StoreEntity](nil), err
+		return collection.NewCollection[dto.StoreDTO](nil), err
 	}
-	return storeMapper.MapToAggregate(rows), nil
+	return storeMapper.MapToDTO(rows), nil
 }

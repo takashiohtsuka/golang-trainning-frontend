@@ -6,9 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"golang-trainning-frontend/pkg/domain/collection"
+	"golang-trainning-frontend/pkg/collection"
 	"golang-trainning-frontend/pkg/adapter/response/women"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/dto"
 )
 
 // --- helpers ---
@@ -19,26 +19,26 @@ func intPtr(i int) *int       { return &i }
 // --- NewListResponse tests ---
 
 func TestNewListResponse_WithEmptySlice_ReturnsEmptyList(t *testing.T) {
-	result := women.NewListResponse([]entity.WomanEntity{})
+	result := women.NewListResponse([]dto.WomanDTO{})
 
 	require.NotNil(t, result.Women)
 	assert.Empty(t, result.Women)
 }
 
 func TestNewListResponse_MapsBasicFields(t *testing.T) {
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		Age:              intPtr(25),
-		Birthplace:       strPtr("東京"),
-		BloodType:        strPtr("A"),
-		Hobby:            strPtr("読書"),
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+	w := &dto.Woman{
+		ID:         1,
+		Name:       "女性1",
+		Age:        intPtr(25),
+		Birthplace: strPtr("東京"),
+		BloodType:  strPtr("A"),
+		Hobby:      strPtr("読書"),
+		Stores:     collection.NewCollection[dto.WomanStore](nil),
+		Images:     collection.NewCollection[dto.WomanImage](nil),
+		Blogs:      collection.NewCollection[dto.BlogDTO](nil),
 	}
 
-	result := women.NewListResponse([]entity.WomanEntity{w})
+	result := women.NewListResponse([]dto.WomanDTO{w})
 
 	require.Len(t, result.Women, 1)
 	item := result.Women[0]
@@ -50,41 +50,41 @@ func TestNewListResponse_MapsBasicFields(t *testing.T) {
 	assert.Equal(t, strPtr("読書"), item.Hobby)
 }
 
-func TestNewListResponse_MapsStoreAssignments(t *testing.T) {
-	assignments := []entity.WomanStoreAssignment{
-		{ID: 10, StoreID: 100},
-		{ID: 11, StoreID: 101},
+func TestNewListResponse_MapsStores(t *testing.T) {
+	stores := []dto.WomanStore{
+		{ID: 100, Name: "店舗1"},
+		{ID: 101, Name: "店舗2"},
 	}
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		StoreAssignments: collection.NewCollection(assignments),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+	w := &dto.Woman{
+		ID:     1,
+		Name:   "女性1",
+		Stores: collection.NewCollection(stores),
+		Images: collection.NewCollection[dto.WomanImage](nil),
+		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
 	}
 
-	result := women.NewListResponse([]entity.WomanEntity{w})
+	result := women.NewListResponse([]dto.WomanDTO{w})
 
-	require.Len(t, result.Women[0].StoreAssignments, 2)
-	assert.Equal(t, uint(10), result.Women[0].StoreAssignments[0].ID)
-	assert.Equal(t, uint(100), result.Women[0].StoreAssignments[0].StoreID)
-	assert.Equal(t, uint(11), result.Women[0].StoreAssignments[1].ID)
-	assert.Equal(t, uint(101), result.Women[0].StoreAssignments[1].StoreID)
+	require.Len(t, result.Women[0].Stores, 2)
+	assert.Equal(t, uint(100), result.Women[0].Stores[0].ID)
+	assert.Equal(t, "店舗1", result.Women[0].Stores[0].Name)
+	assert.Equal(t, uint(101), result.Women[0].Stores[1].ID)
+	assert.Equal(t, "店舗2", result.Women[0].Stores[1].Name)
 }
 
 func TestNewListResponse_MapsImages(t *testing.T) {
-	images := []entity.WomanImage{
+	images := []dto.WomanImage{
 		{ID: 20, Path: "images/photo1.jpg"},
 	}
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection(images),
-		Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+	w := &dto.Woman{
+		ID:     1,
+		Name:   "女性1",
+		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Images: collection.NewCollection(images),
+		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
 	}
 
-	result := women.NewListResponse([]entity.WomanEntity{w})
+	result := women.NewListResponse([]dto.WomanDTO{w})
 
 	require.Len(t, result.Women[0].Images, 1)
 	assert.Equal(t, uint(20), result.Women[0].Images[0].ID)
@@ -92,19 +92,19 @@ func TestNewListResponse_MapsImages(t *testing.T) {
 }
 
 func TestNewListResponse_MapsBlogs(t *testing.T) {
-	blogs := []entity.BlogEntity{
-		&entity.Blog{ID: 30, Title: "ブログ1", Photos: collection.NewCollection[entity.Photo](nil)},
-		&entity.Blog{ID: 31, Title: "ブログ2", Photos: collection.NewCollection[entity.Photo](nil)},
+	blogs := []dto.BlogDTO{
+		&dto.Blog{ID: 30, Title: "ブログ1", Photos: collection.NewCollection[dto.Photo](nil)},
+		&dto.Blog{ID: 31, Title: "ブログ2", Photos: collection.NewCollection[dto.Photo](nil)},
 	}
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection(blogs),
+	w := &dto.Woman{
+		ID:     1,
+		Name:   "女性1",
+		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Images: collection.NewCollection[dto.WomanImage](nil),
+		Blogs:  collection.NewCollection(blogs),
 	}
 
-	result := women.NewListResponse([]entity.WomanEntity{w})
+	result := women.NewListResponse([]dto.WomanDTO{w})
 
 	require.Len(t, result.Women[0].Blogs, 2)
 	assert.Equal(t, uint(30), result.Women[0].Blogs[0].ID)
@@ -114,22 +114,22 @@ func TestNewListResponse_MapsBlogs(t *testing.T) {
 }
 
 func TestNewListResponse_WithMultipleWomen_MapsAll(t *testing.T) {
-	w1 := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+	w1 := &dto.Woman{
+		ID:     1,
+		Name:   "女性1",
+		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Images: collection.NewCollection[dto.WomanImage](nil),
+		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
 	}
-	w2 := &entity.Woman{
-		ID:               2,
-		Name:             "女性2",
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+	w2 := &dto.Woman{
+		ID:     2,
+		Name:   "女性2",
+		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Images: collection.NewCollection[dto.WomanImage](nil),
+		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
 	}
 
-	result := women.NewListResponse([]entity.WomanEntity{w1, w2})
+	result := women.NewListResponse([]dto.WomanDTO{w1, w2})
 
 	require.Len(t, result.Women, 2)
 	assert.Equal(t, uint(1), result.Women[0].ID)
@@ -139,16 +139,16 @@ func TestNewListResponse_WithMultipleWomen_MapsAll(t *testing.T) {
 // --- NewDetailResponse tests ---
 
 func TestNewDetailResponse_MapsBasicFields(t *testing.T) {
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		Age:              intPtr(30),
-		Birthplace:       strPtr("大阪"),
-		BloodType:        strPtr("B"),
-		Hobby:            strPtr("映画"),
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+	w := &dto.Woman{
+		ID:         1,
+		Name:       "女性1",
+		Age:        intPtr(30),
+		Birthplace: strPtr("大阪"),
+		BloodType:  strPtr("B"),
+		Hobby:      strPtr("映画"),
+		Stores:     collection.NewCollection[dto.WomanStore](nil),
+		Images:     collection.NewCollection[dto.WomanImage](nil),
+		Blogs:      collection.NewCollection[dto.BlogDTO](nil),
 	}
 
 	result := women.NewDetailResponse(w)
@@ -162,12 +162,12 @@ func TestNewDetailResponse_MapsBasicFields(t *testing.T) {
 }
 
 func TestNewDetailResponse_WithNilOptionalFields_MapsAsNil(t *testing.T) {
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+	w := &dto.Woman{
+		ID:     1,
+		Name:   "女性1",
+		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Images: collection.NewCollection[dto.WomanImage](nil),
+		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
 	}
 
 	result := women.NewDetailResponse(w)
@@ -180,20 +180,20 @@ func TestNewDetailResponse_WithNilOptionalFields_MapsAsNil(t *testing.T) {
 
 func TestNewDetailResponse_MapsBlogsWithPhotos(t *testing.T) {
 	body := "本文"
-	blogs := []entity.BlogEntity{
-		&entity.Blog{
+	blogs := []dto.BlogDTO{
+		&dto.Blog{
 			ID:     30,
 			Title:  "ブログ1",
 			Body:   &body,
-			Photos: collection.NewCollection([]entity.Photo{{ID: 50, URL: "photos/photo1.jpg"}}),
+			Photos: collection.NewCollection([]dto.Photo{{ID: 50, URL: "photos/photo1.jpg"}}),
 		},
 	}
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection(blogs),
+	w := &dto.Woman{
+		ID:     1,
+		Name:   "女性1",
+		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Images: collection.NewCollection[dto.WomanImage](nil),
+		Blogs:  collection.NewCollection(blogs),
 	}
 
 	result := women.NewDetailResponse(w)
@@ -209,24 +209,24 @@ func TestNewDetailResponse_MapsBlogsWithPhotos(t *testing.T) {
 }
 
 func TestNewDetailResponse_MapsMultipleBlogsWithPhotos(t *testing.T) {
-	blogs := []entity.BlogEntity{
-		&entity.Blog{
+	blogs := []dto.BlogDTO{
+		&dto.Blog{
 			ID:     30,
 			Title:  "ブログ1",
-			Photos: collection.NewCollection([]entity.Photo{{ID: 50, URL: "photos/1.jpg"}, {ID: 51, URL: "photos/2.jpg"}}),
+			Photos: collection.NewCollection([]dto.Photo{{ID: 50, URL: "photos/1.jpg"}, {ID: 51, URL: "photos/2.jpg"}}),
 		},
-		&entity.Blog{
+		&dto.Blog{
 			ID:     31,
 			Title:  "ブログ2",
-			Photos: collection.NewCollection[entity.Photo](nil),
+			Photos: collection.NewCollection[dto.Photo](nil),
 		},
 	}
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection(blogs),
+	w := &dto.Woman{
+		ID:     1,
+		Name:   "女性1",
+		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Images: collection.NewCollection[dto.WomanImage](nil),
+		Blogs:  collection.NewCollection(blogs),
 	}
 
 	result := women.NewDetailResponse(w)
@@ -237,16 +237,16 @@ func TestNewDetailResponse_MapsMultipleBlogsWithPhotos(t *testing.T) {
 }
 
 func TestNewDetailResponse_MapsImages(t *testing.T) {
-	images := []entity.WomanImage{
+	images := []dto.WomanImage{
 		{ID: 20, Path: "images/photo1.jpg"},
 		{ID: 21, Path: "images/photo2.jpg"},
 	}
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection(images),
-		Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+	w := &dto.Woman{
+		ID:     1,
+		Name:   "女性1",
+		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Images: collection.NewCollection(images),
+		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
 	}
 
 	result := women.NewDetailResponse(w)
@@ -259,17 +259,17 @@ func TestNewDetailResponse_MapsImages(t *testing.T) {
 }
 
 func TestNewDetailResponse_WithEmptyCollections_ReturnsEmptySlices(t *testing.T) {
-	w := &entity.Woman{
-		ID:               1,
-		Name:             "女性1",
-		StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-		Images:           collection.NewCollection[entity.WomanImage](nil),
-		Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+	w := &dto.Woman{
+		ID:     1,
+		Name:   "女性1",
+		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Images: collection.NewCollection[dto.WomanImage](nil),
+		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
 	}
 
 	result := women.NewDetailResponse(w)
 
-	assert.Empty(t, result.StoreAssignments)
+	assert.Empty(t, result.Stores)
 	assert.Empty(t, result.Images)
 	assert.Empty(t, result.Blogs)
 }

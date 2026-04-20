@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"golang-trainning-frontend/pkg/domain/collection"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/collection"
+	"golang-trainning-frontend/pkg/dto"
 	storeMapper "golang-trainning-frontend/pkg/adapter/mapper/store"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 
@@ -19,7 +19,7 @@ func NewStoreRegionRepository(db *gorm.DB) outputport.StoreRegionRepository {
 	return &storeRegionRepository{db: db}
 }
 
-func (r *storeRegionRepository) FindPickupByRegion(ctx context.Context, regionID uint) (collection.Collection[entity.StoreEntity], error) {
+func (r *storeRegionRepository) FindPickupByRegion(ctx context.Context, regionID uint) (collection.Collection[dto.StoreDTO], error) {
 	sql := `
 		SELECT
 			s.id            AS store_id,
@@ -72,7 +72,7 @@ func (r *storeRegionRepository) FindPickupByRegion(ctx context.Context, regionID
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, storeWomenLimit, storeBlogsPerWomanLimit, regionID, storeRegionPickupLimit).Scan(&rows).Error; err != nil {
-		return collection.NewCollection[entity.StoreEntity](nil), err
+		return collection.NewCollection[dto.StoreDTO](nil), err
 	}
-	return storeMapper.MapToAggregate(rows), nil
+	return storeMapper.MapToDTO(rows), nil
 }

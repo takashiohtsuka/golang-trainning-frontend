@@ -27,12 +27,18 @@ func (wc *womanDistrictController) GetWomanDistrictList(ctx Context) error {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid id"})
 	}
 
-	women, err := wc.womanDistrictUsecase.GetList(ctx.Request().Context(), input.GetWomanDistrictListInput{
+	page, _ := strconv.ParseUint(ctx.QueryParam("page"), 10, 64)
+	query := ctx.Request().URL.Query()
+
+	women, total, err := wc.womanDistrictUsecase.GetList(ctx.Request().Context(), input.GetWomanDistrictListInput{
 		DistrictID: uint(id),
+		Page:       uint(page),
+		BloodTypes: query["blood_type"],
+		AgeRanges:  query["age_range"],
 	})
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "internal server error"})
 	}
 
-	return ctx.JSON(http.StatusOK, responseWomen.NewDistrictListResponse(women.All()))
+	return ctx.JSON(http.StatusOK, responseWomen.NewDistrictListResponse(women.All(), total))
 }

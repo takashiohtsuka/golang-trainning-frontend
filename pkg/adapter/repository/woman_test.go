@@ -225,7 +225,7 @@ func TestWomanRepository_FindOne_ReturnsNilWhenNotFound(t *testing.T) {
 	assert.True(t, result.IsNil())
 }
 
-func TestWomanRepository_FindAll_MapsStoreAssignments(t *testing.T) {
+func TestWomanRepository_FindAll_MapsStores(t *testing.T) {
 	db := sqlDB(t)
 	t.Cleanup(func() { cleanupAll(db) })
 
@@ -243,7 +243,7 @@ func TestWomanRepository_FindAll_MapsStoreAssignments(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, 1, len(result.All()))
-	assert.Equal(t, 2, len(result.All()[0].GetStoreAssignments().All()))
+	assert.Equal(t, 2, len(result.All()[0].GetStores().All()))
 }
 
 func TestWomanRepository_FindAll_LimitsBlogsToThree(t *testing.T) {
@@ -287,7 +287,7 @@ func TestWomanRepository_FindAll_DeduplicatesWhenImagesAndBlogsAndAssignmentsExi
 	require.NoError(t, err)
 	require.Equal(t, 1, len(result.All()), "womanは1件のみ返ること（JOIN重複排除）")
 	w := result.All()[0]
-	assert.Equal(t, 1, len(w.GetStoreAssignments().All()), "StoreAssignmentsが重複しないこと")
+	assert.Equal(t, 1, len(w.GetStores().All()), "Storesが重複しないこと")
 	assert.Equal(t, 1, len(w.GetImages().All()), "Imagesが重複しないこと")
 	assert.Equal(t, 2, len(w.GetBlogs().All()), "Blogsが重複しないこと")
 }
@@ -325,7 +325,7 @@ func TestWomanRepository_FindOne_ReturnsErrorWhenDBFailed(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestWomanRepository_FindOne_MapsStoreAssignments(t *testing.T) {
+func TestWomanRepository_FindOne_MapsStores(t *testing.T) {
 	db := sqlDB(t)
 	t.Cleanup(func() { cleanupAll(db) })
 
@@ -343,7 +343,7 @@ func TestWomanRepository_FindOne_MapsStoreAssignments(t *testing.T) {
 
 	require.NoError(t, err)
 	require.False(t, result.IsNil())
-	assert.Equal(t, 2, len(result.GetStoreAssignments().All()))
+	assert.Equal(t, 2, len(result.GetStores().All()))
 }
 
 func TestWomanRepository_FindOne_MapsMultipleImages(t *testing.T) {

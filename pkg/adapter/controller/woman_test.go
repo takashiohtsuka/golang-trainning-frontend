@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"golang-trainning-frontend/pkg/apperror"
-	"golang-trainning-frontend/pkg/domain/collection"
+	"golang-trainning-frontend/pkg/collection"
 	"golang-trainning-frontend/pkg/adapter/controller"
 	responseWomen "golang-trainning-frontend/pkg/adapter/response/women"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/dto"
 	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/query"
 )
@@ -41,20 +41,20 @@ func (m *mockContext) Request() *http.Request            { return &http.Request{
 
 type mockWomanUsecase struct {
 	getListInput  input.GetWomanListInput
-	getListReturn collection.Collection[entity.WomanEntity]
+	getListReturn collection.Collection[dto.WomanDTO]
 	getListError  error
 
 	getDetailInput  input.GetWomanDetailInput
-	getDetailReturn entity.WomanEntity
+	getDetailReturn dto.WomanDTO
 	getDetailError  error
 }
 
-func (m *mockWomanUsecase) GetList(_ context.Context, i input.GetWomanListInput) (collection.Collection[entity.WomanEntity], error) {
+func (m *mockWomanUsecase) GetList(_ context.Context, i input.GetWomanListInput) (collection.Collection[dto.WomanDTO], error) {
 	m.getListInput = i
 	return m.getListReturn, m.getListError
 }
 
-func (m *mockWomanUsecase) GetDetail(i input.GetWomanDetailInput) (entity.WomanEntity, error) {
+func (m *mockWomanUsecase) GetDetail(i input.GetWomanDetailInput) (dto.WomanDTO, error) {
 	m.getDetailInput = i
 	return m.getDetailReturn, m.getDetailError
 }
@@ -63,7 +63,7 @@ func (m *mockWomanUsecase) GetDetail(i input.GetWomanDetailInput) (entity.WomanE
 
 func TestWomanController_GetWomanList_WithNoStoreID_Returns200(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getListReturn: collection.NewCollection[entity.WomanEntity](nil),
+		getListReturn: collection.NewCollection[dto.WomanDTO](nil),
 	}
 	ctx := &mockContext{queryParams: map[string]string{}}
 
@@ -77,7 +77,7 @@ func TestWomanController_GetWomanList_WithNoStoreID_Returns200(t *testing.T) {
 
 func TestWomanController_GetWomanList_WithValidStoreID_PassesStoreIDToUsecase(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getListReturn: collection.NewCollection[entity.WomanEntity](nil),
+		getListReturn: collection.NewCollection[dto.WomanDTO](nil),
 	}
 	ctx := &mockContext{queryParams: map[string]string{"store_id": "1"}}
 
@@ -118,7 +118,7 @@ func TestWomanController_GetWomanList_WhenUsecaseFails_Returns500(t *testing.T) 
 
 func TestWomanController_GetWomanDetail_WithValidID_Returns200(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getDetailReturn: &entity.Woman{ID: 1, Name: "女性1"},
+		getDetailReturn: &dto.Woman{ID: 1, Name: "女性1"},
 	}
 	ctx := &mockContext{params: map[string]string{"id": "1"}}
 
@@ -171,13 +171,13 @@ func TestWomanController_GetWomanDetail_WhenUsecaseFails_Returns500(t *testing.T
 
 func TestWomanController_GetWomanList_ResponseBodyIsListResponse(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getListReturn: collection.NewCollection[entity.WomanEntity]([]entity.WomanEntity{
-			&entity.Woman{
-				ID:               1,
-				Name:             "女性1",
-				StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-				Images:           collection.NewCollection[entity.WomanImage](nil),
-				Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+		getListReturn: collection.NewCollection[dto.WomanDTO]([]dto.WomanDTO{
+			&dto.Woman{
+				ID:     1,
+				Name:   "女性1",
+				Stores: collection.NewCollection[dto.WomanStore](nil),
+				Images: collection.NewCollection[dto.WomanImage](nil),
+				Blogs:  collection.NewCollection[dto.BlogDTO](nil),
 			},
 		}),
 	}
@@ -199,12 +199,12 @@ func TestWomanController_GetWomanList_ResponseBodyIsListResponse(t *testing.T) {
 
 func TestWomanController_GetWomanDetail_ResponseBodyIsDetailResponse(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getDetailReturn: &entity.Woman{
-			ID:               1,
-			Name:             "女性1",
-			StoreAssignments: collection.NewCollection[entity.WomanStoreAssignment](nil),
-			Images:           collection.NewCollection[entity.WomanImage](nil),
-			Blogs:            collection.NewCollection[entity.BlogEntity](nil),
+		getDetailReturn: &dto.Woman{
+			ID:     1,
+			Name:   "女性1",
+			Stores: collection.NewCollection[dto.WomanStore](nil),
+			Images: collection.NewCollection[dto.WomanImage](nil),
+			Blogs:  collection.NewCollection[dto.BlogDTO](nil),
 		},
 	}
 	ctx := &mockContext{params: map[string]string{"id": "1"}}

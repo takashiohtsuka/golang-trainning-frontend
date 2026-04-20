@@ -1,6 +1,7 @@
-export interface StoreAssignment {
+export interface WomanStore {
   id: number;
-  store_id: number;
+  name: string;
+  business_type: string;
 }
 
 export interface WomanImage {
@@ -20,11 +21,12 @@ export interface WomanListItem {
   birthplace: string | null;
   blood_type: string | null;
   hobby: string | null;
-  store_assignments: StoreAssignment[];
+  stores: WomanStore[];
   images: WomanImage[];
   blogs: WomanBlog[];
 }
 
 export interface DistrictWomenResponse {
   women: WomanListItem[];
+  total: number;
 }

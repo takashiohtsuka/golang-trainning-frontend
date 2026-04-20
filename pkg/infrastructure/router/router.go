@@ -23,6 +23,7 @@ func NewRouter(e *echo.Echo, c controller.AppController) *echo.Echo {
 	g.GET("/women/:id", func(ctx echo.Context) error { return c.Woman.GetWomanDetail(ctx) })
 
 	g.GET("/districts/:id/women", func(ctx echo.Context) error { return c.WomanDistrict.GetWomanDistrictList(ctx) })
+	g.GET("/districts/:id/search-woman-count", func(ctx echo.Context) error { return c.WomanDistrictCount.GetWomanDistrictCount(ctx) })
 
 	return e
 }

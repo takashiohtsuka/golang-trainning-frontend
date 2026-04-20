@@ -3,10 +3,10 @@ package outputport
 import (
 	"context"
 
-	"golang-trainning-frontend/pkg/domain/collection"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/collection"
+	"golang-trainning-frontend/pkg/dto"
 )
 
 type WomanPrefectureRepository interface {
-	FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[entity.WomanEntity], error)
+	FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[dto.WomanDTO], error)
 }

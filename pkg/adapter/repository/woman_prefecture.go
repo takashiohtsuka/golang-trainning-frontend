@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 
-	"golang-trainning-frontend/pkg/domain/collection"
+	"golang-trainning-frontend/pkg/collection"
 	womanMapper "golang-trainning-frontend/pkg/adapter/mapper/woman"
-	"golang-trainning-frontend/pkg/domain/entity"
+	"golang-trainning-frontend/pkg/dto"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 
 	"gorm.io/gorm"
@@ -19,7 +19,7 @@ func NewWomanPrefectureRepository(db *gorm.DB) outputport.WomanPrefectureReposit
 	return &womanPrefectureRepository{db: db}
 }
 
-func (r *womanPrefectureRepository) FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[entity.WomanEntity], error) {
+func (r *womanPrefectureRepository) FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[dto.WomanDTO], error) {
 	sql := `
 		SELECT
 			w.id            AS woman_id,
@@ -50,7 +50,7 @@ func (r *womanPrefectureRepository) FindAllByPrefecture(ctx context.Context, pre
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, womanBlogsLimit, prefectureID).Scan(&rows).Error; err != nil {
-		return collection.NewCollection[entity.WomanEntity](nil), err
+		return collection.NewCollection[dto.WomanDTO](nil), err
 	}
-	return womanMapper.MapToAggregate(rows), nil
+	return womanMapper.MapToDTO(rows), nil
 }
