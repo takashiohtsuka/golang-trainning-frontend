@@ -33,8 +33,8 @@ func TestNewListResponse_MapsBasicFields(t *testing.T) {
 		Birthplace: strPtr("東京"),
 		BloodType:  strPtr("A"),
 		Hobby:      strPtr("読書"),
-		Stores:     collection.NewCollection[dto.WomanStore](nil),
-		Images:     collection.NewCollection[dto.WomanImage](nil),
+		Stores:     collection.NewCollection[querymodel.WomanStore](nil),
+		Images:     collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:      collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
@@ -59,7 +59,7 @@ func TestNewListResponse_MapsStores(t *testing.T) {
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection(stores),
-		Images: collection.NewCollection[dto.WomanImage](nil),
+		Images: collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
@@ -79,7 +79,7 @@ func TestNewListResponse_MapsImages(t *testing.T) {
 	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
-		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Stores: collection.NewCollection[querymodel.WomanStore](nil),
 		Images: collection.NewCollection(images),
 		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
@@ -93,14 +93,14 @@ func TestNewListResponse_MapsImages(t *testing.T) {
 
 func TestNewListResponse_MapsBlogs(t *testing.T) {
 	blogs := []querymodel.BlogQueryModel{
-		&querymodel.Blog{ID: 30, Title: "ブログ1", Photos: collection.NewCollection[dto.Photo](nil)},
-		&querymodel.Blog{ID: 31, Title: "ブログ2", Photos: collection.NewCollection[dto.Photo](nil)},
+		&querymodel.Blog{ID: 30, Title: "ブログ1", Photos: collection.NewCollection[querymodel.Photo](nil)},
+		&querymodel.Blog{ID: 31, Title: "ブログ2", Photos: collection.NewCollection[querymodel.Photo](nil)},
 	}
 	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
-		Stores: collection.NewCollection[dto.WomanStore](nil),
-		Images: collection.NewCollection[dto.WomanImage](nil),
+		Stores: collection.NewCollection[querymodel.WomanStore](nil),
+		Images: collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:  collection.NewCollection(blogs),
 	}
 
@@ -117,15 +117,15 @@ func TestNewListResponse_WithMultipleWomen_MapsAll(t *testing.T) {
 	w1 := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
-		Stores: collection.NewCollection[dto.WomanStore](nil),
-		Images: collection.NewCollection[dto.WomanImage](nil),
+		Stores: collection.NewCollection[querymodel.WomanStore](nil),
+		Images: collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 	w2 := &querymodel.Woman{
 		ID:     2,
 		Name:   "女性2",
-		Stores: collection.NewCollection[dto.WomanStore](nil),
-		Images: collection.NewCollection[dto.WomanImage](nil),
+		Stores: collection.NewCollection[querymodel.WomanStore](nil),
+		Images: collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
@@ -146,8 +146,8 @@ func TestNewDetailResponse_MapsBasicFields(t *testing.T) {
 		Birthplace: strPtr("大阪"),
 		BloodType:  strPtr("B"),
 		Hobby:      strPtr("映画"),
-		Stores:     collection.NewCollection[dto.WomanStore](nil),
-		Images:     collection.NewCollection[dto.WomanImage](nil),
+		Stores:     collection.NewCollection[querymodel.WomanStore](nil),
+		Images:     collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:      collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
@@ -165,8 +165,8 @@ func TestNewDetailResponse_WithNilOptionalFields_MapsAsNil(t *testing.T) {
 	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
-		Stores: collection.NewCollection[dto.WomanStore](nil),
-		Images: collection.NewCollection[dto.WomanImage](nil),
+		Stores: collection.NewCollection[querymodel.WomanStore](nil),
+		Images: collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
@@ -191,8 +191,8 @@ func TestNewDetailResponse_MapsBlogsWithPhotos(t *testing.T) {
 	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
-		Stores: collection.NewCollection[dto.WomanStore](nil),
-		Images: collection.NewCollection[dto.WomanImage](nil),
+		Stores: collection.NewCollection[querymodel.WomanStore](nil),
+		Images: collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:  collection.NewCollection(blogs),
 	}
 
@@ -218,14 +218,14 @@ func TestNewDetailResponse_MapsMultipleBlogsWithPhotos(t *testing.T) {
 		&querymodel.Blog{
 			ID:     31,
 			Title:  "ブログ2",
-			Photos: collection.NewCollection[dto.Photo](nil),
+			Photos: collection.NewCollection[querymodel.Photo](nil),
 		},
 	}
 	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
-		Stores: collection.NewCollection[dto.WomanStore](nil),
-		Images: collection.NewCollection[dto.WomanImage](nil),
+		Stores: collection.NewCollection[querymodel.WomanStore](nil),
+		Images: collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:  collection.NewCollection(blogs),
 	}
 
@@ -244,7 +244,7 @@ func TestNewDetailResponse_MapsImages(t *testing.T) {
 	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
-		Stores: collection.NewCollection[dto.WomanStore](nil),
+		Stores: collection.NewCollection[querymodel.WomanStore](nil),
 		Images: collection.NewCollection(images),
 		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
@@ -262,8 +262,8 @@ func TestNewDetailResponse_WithEmptyCollections_ReturnsEmptySlices(t *testing.T)
 	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
-		Stores: collection.NewCollection[dto.WomanStore](nil),
-		Images: collection.NewCollection[dto.WomanImage](nil),
+		Stores: collection.NewCollection[querymodel.WomanStore](nil),
+		Images: collection.NewCollection[querymodel.WomanImage](nil),
 		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 

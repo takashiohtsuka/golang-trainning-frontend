@@ -3,9 +3,10 @@ package controller
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"golang-trainning-frontend/pkg/apperror"
+	requestStores "golang-trainning-frontend/pkg/adapter/request/stores"
+	requestWomen "golang-trainning-frontend/pkg/adapter/request/women"
 	responseWomen "golang-trainning-frontend/pkg/adapter/response/women"
 	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/inputport"
@@ -34,14 +35,15 @@ func (wc *womanController) GetWomanList(ctx Context) error {
 }
 
 func (wc *womanController) GetStoreWomanList(ctx Context) error {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid id"})
+	var req requestStores.GetRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+	}
+	if err := ctx.Validate(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	women, err := wc.womanUsecase.GetStoreWomanList(ctx.Request().Context(), input.GetStoreWomanListInput{
-		StoreID: uint(id),
-	})
+	women, err := wc.womanUsecase.GetStoreWomanList(ctx.Request().Context(), req.ToStoreWomanListInput())
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "internal server error"})
 	}
@@ -49,14 +51,15 @@ func (wc *womanController) GetStoreWomanList(ctx Context) error {
 }
 
 func (wc *womanController) GetWomanDetail(ctx Context) error {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid id"})
+	var req requestWomen.DetailRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+	}
+	if err := ctx.Validate(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	woman, err := wc.womanUsecase.GetDetail(ctx.Request().Context(), input.GetWomanDetailInput{
-		WomanID: uint(id),
-	})
+	woman, err := wc.womanUsecase.GetDetail(ctx.Request().Context(), req.ToInput())
 	if err != nil {
 		var nfe *apperror.NotFoundException
 		if errors.As(err, &nfe) {

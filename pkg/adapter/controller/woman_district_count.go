@@ -2,10 +2,9 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
 
+	requestDistricts "golang-trainning-frontend/pkg/adapter/request/districts"
 	responseWomen "golang-trainning-frontend/pkg/adapter/response/women"
-	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/inputport"
 )
 
@@ -22,18 +21,15 @@ func NewWomanDistrictCountController(u inputport.WomanDistrictCountUsecase) Woma
 }
 
 func (wc *womanDistrictCountController) GetWomanDistrictCount(ctx Context) error {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid id"})
+	var req requestDistricts.WomanCountRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+	}
+	if err := ctx.Validate(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	query := ctx.Request().URL.Query()
-
-	count, err := wc.womanDistrictCountUsecase.GetCount(ctx.Request().Context(), input.GetWomanDistrictCountInput{
-		DistrictID: uint(id),
-		BloodTypes: query["blood_type"],
-		AgeRanges:  query["age_range"],
-	})
+	count, err := wc.womanDistrictCountUsecase.GetCount(ctx.Request().Context(), req.ToInput())
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "internal server error"})
 	}

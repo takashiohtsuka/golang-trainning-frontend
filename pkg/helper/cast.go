@@ -2,6 +2,7 @@ package helper
 
 import (
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -28,6 +29,14 @@ func ToUint(v any) uint {
 		return uint(n)
 	}
 	return 0
+}
+
+// SplitComma はカンマ区切りの文字列をスライスに変換する。空文字の場合は nil を返す。
+func SplitComma(s string) []string {
+	if s == "" {
+		return nil
+	}
+	return strings.Split(s, ",")
 }
 
 func ToString(v any) string {

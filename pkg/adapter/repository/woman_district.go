@@ -13,6 +13,7 @@ import (
 )
 
 const limit uint = 10
+const womanDistrictBlogsLimit = 3
 
 type womanDistrictRepository struct {
 	db *gorm.DB
@@ -94,7 +95,7 @@ func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input
 		) b ON b.woman_id = w.id AND b.rn <= ?
 		ORDER BY w.id, wi.id, b.id`
 
-	args = append(args, womanBlogsLimit)
+	args = append(args, womanDistrictBlogsLimit)
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, args...).Scan(&rows).Error; err != nil {

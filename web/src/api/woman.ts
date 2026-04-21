@@ -10,8 +10,8 @@ export async function fetchDistrictWomen(
 ): Promise<DistrictWomenResponse> {
   const params = new URLSearchParams();
   params.set("page", String(page));
-  bloodTypes.forEach((bt) => params.append("blood_type", bt));
-  ageRanges.forEach((r) => params.append("age_range", r));
+  if (bloodTypes.length > 0) params.set("blood_type", bloodTypes.join(","));
+  if (ageRanges.length > 0) params.set("age_range", ageRanges.join(","));
   const res = await fetch(`${BASE_URL}/districts/${districtId}/women?${params.toString()}`);
   if (!res.ok) throw new Error(`${res.status}`);
   return res.json() as Promise<DistrictWomenResponse>;
@@ -23,8 +23,8 @@ export async function fetchDistrictWomanCount(
   ageRanges: string[]
 ): Promise<DistrictWomanCountResponse> {
   const params = new URLSearchParams();
-  bloodTypes.forEach((bt) => params.append("blood_type", bt));
-  ageRanges.forEach((r) => params.append("age_range", r));
+  if (bloodTypes.length > 0) params.set("blood_type", bloodTypes.join(","));
+  if (ageRanges.length > 0) params.set("age_range", ageRanges.join(","));
   const res = await fetch(`${BASE_URL}/districts/${districtId}/search-woman-count?${params.toString()}`);
   if (!res.ok) throw new Error(`${res.status}`);
   return res.json() as Promise<DistrictWomanCountResponse>;

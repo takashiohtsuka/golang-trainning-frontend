@@ -13,14 +13,14 @@ export default function WomenPageClient({ districtId }: Props) {
   const searchParams = useSearchParams();
   const { page, goToPage } = usePageParam();
 
-  const bloodTypes = searchParams.getAll("blood_type");
-  const ageRanges = searchParams.getAll("age_range");
+  const bloodTypes = searchParams.get("blood_type")?.split(",").filter(Boolean) ?? [];
+  const ageRanges = searchParams.get("age_range")?.split(",").filter(Boolean) ?? [];
 
   const onSearch = (newBloodTypes: string[], newAgeRanges: string[]) => {
     const params = new URLSearchParams();
     params.set("page", "1");
-    newBloodTypes.forEach((bt) => params.append("blood_type", bt));
-    newAgeRanges.forEach((ar) => params.append("age_range", ar));
+    if (newBloodTypes.length > 0) params.set("blood_type", newBloodTypes.join(","));
+    if (newAgeRanges.length > 0) params.set("age_range", newAgeRanges.join(","));
     router.push(`?${params.toString()}`);
   };
 

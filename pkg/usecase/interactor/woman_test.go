@@ -96,7 +96,7 @@ func TestWomanUsecase_GetDetail_PassesWomanIDCondition(t *testing.T) {
 
 func TestWomanUsecase_GetDetail_WhenNotFound_ReturnsNotFoundException(t *testing.T) {
 	mock := &mockWomanRepository{
-		findOneReturn: &dto.NilWoman{},
+		findOneReturn: &querymodel.NilWoman{},
 	}
 	u := interactor.NewWomanUsecase(mock)
 

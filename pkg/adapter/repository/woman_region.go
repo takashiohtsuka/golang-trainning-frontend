@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
+const womanRegionBlogsLimit = 3
 const womanRegionPickupLimit = 6
 
 type womanRegionRepository struct {
@@ -61,7 +62,7 @@ func (r *womanRegionRepository) FindPickupByRegion(ctx context.Context, regionID
 		ORDER BY w.id, wi.id, b.id`
 
 	var rows []map[string]any
-	if err := r.db.WithContext(ctx).Raw(sql, womanBlogsLimit, regionID, womanRegionPickupLimit).Scan(&rows).Error; err != nil {
+	if err := r.db.WithContext(ctx).Raw(sql, womanRegionBlogsLimit, regionID, womanRegionPickupLimit).Scan(&rows).Error; err != nil {
 		return collection.NewCollection[querymodel.WomanQueryModel](nil), err
 	}
 	return womanMapper.MapToQueryModel(rows), nil

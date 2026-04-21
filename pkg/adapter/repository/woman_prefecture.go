@@ -11,6 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const womanPrefectureBlogsLimit = 3
+
 type womanPrefectureRepository struct {
 	db *gorm.DB
 }
@@ -49,7 +51,7 @@ func (r *womanPrefectureRepository) FindAllByPrefecture(ctx context.Context, pre
 		ORDER BY w.id, wi.id, b.id`
 
 	var rows []map[string]any
-	if err := r.db.WithContext(ctx).Raw(sql, womanBlogsLimit, prefectureID).Scan(&rows).Error; err != nil {
+	if err := r.db.WithContext(ctx).Raw(sql, womanPrefectureBlogsLimit, prefectureID).Scan(&rows).Error; err != nil {
 		return collection.NewCollection[querymodel.WomanQueryModel](nil), err
 	}
 	return womanMapper.MapToQueryModel(rows), nil

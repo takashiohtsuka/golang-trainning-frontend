@@ -2,10 +2,9 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
 
+	requestStores "golang-trainning-frontend/pkg/adapter/request/stores"
 	responseStores "golang-trainning-frontend/pkg/adapter/response/stores"
-	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/inputport"
 )
 
@@ -22,14 +21,15 @@ func NewStoreController(u inputport.StoreUsecase) Store {
 }
 
 func (sc *storeController) GetStoreDetail(ctx Context) error {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid id"})
+	var req requestStores.GetRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+	}
+	if err := ctx.Validate(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	store, err := sc.storeUsecase.GetDetail(ctx.Request().Context(), input.GetStoreDetailInput{
-		StoreID: uint(id),
-	})
+	store, err := sc.storeUsecase.GetDetail(ctx.Request().Context(), req.ToStoreDetailInput())
 	if err != nil {
 		return err
 	}

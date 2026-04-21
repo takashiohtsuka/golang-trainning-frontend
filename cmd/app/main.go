@@ -9,6 +9,7 @@ import (
 	"golang-trainning-frontend/pkg/config"
 	"golang-trainning-frontend/pkg/infrastructure/datastore"
 	"golang-trainning-frontend/pkg/infrastructure/router"
+	"golang-trainning-frontend/pkg/infrastructure/validator"
 	"golang-trainning-frontend/pkg/registry"
 )
 
@@ -16,6 +17,7 @@ func main() {
 	config.ReadConfig()
 
 	e := echo.New()
+	e.Validator = validator.NewCustomValidator()
 
 	db := datastore.NewDB()
 	sqlDB, err := db.DB()

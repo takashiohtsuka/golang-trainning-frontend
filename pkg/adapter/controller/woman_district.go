@@ -2,10 +2,9 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
 
+	requestDistricts "golang-trainning-frontend/pkg/adapter/request/districts"
 	responseWomen "golang-trainning-frontend/pkg/adapter/response/women"
-	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/inputport"
 )
 
@@ -22,20 +21,15 @@ func NewWomanDistrictController(u inputport.WomanDistrictUsecase) WomanDistrict 
 }
 
 func (wc *womanDistrictController) GetWomanDistrictList(ctx Context) error {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid id"})
+	var req requestDistricts.WomanListRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+	}
+	if err := ctx.Validate(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	page, _ := strconv.ParseUint(ctx.QueryParam("page"), 10, 64)
-	query := ctx.Request().URL.Query()
-
-	women, total, err := wc.womanDistrictUsecase.GetList(ctx.Request().Context(), input.GetWomanDistrictListInput{
-		DistrictID: uint(id),
-		Page:       uint(page),
-		BloodTypes: query["blood_type"],
-		AgeRanges:  query["age_range"],
-	})
+	women, total, err := wc.womanDistrictUsecase.GetList(ctx.Request().Context(), req.ToInput())
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "internal server error"})
 	}
