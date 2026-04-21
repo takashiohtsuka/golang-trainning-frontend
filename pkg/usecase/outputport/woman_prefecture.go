@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"golang-trainning-frontend/pkg/collection"
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 )
 
 type WomanPrefectureRepository interface {
-	FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[dto.WomanDTO], error)
+	FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[querymodel.WomanQueryModel], error)
 }

@@ -2,11 +2,10 @@ package repository
 
 import (
 	"context"
-	"strings"
 
 	womanMapper "golang-trainning-frontend/pkg/adapter/mapper/woman"
 	"golang-trainning-frontend/pkg/collection"
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 
@@ -34,27 +33,9 @@ func (r *womanDistrictRepository) CountByDistrictWithCondition(ctx context.Conte
 		AND d.id = ?`
 
 	args := []any{i.DistrictID}
-
-	if len(i.BloodTypes) > 0 {
-		sql += " AND w.blood_type IN (?" + strings.Repeat(",?", len(i.BloodTypes)-1) + ")"
-		for _, bt := range i.BloodTypes {
-			args = append(args, bt)
-		}
-	}
-
-	if len(i.AgeRanges) > 0 {
-		conditions := make([]string, 0, len(i.AgeRanges))
-		for _, ar := range i.AgeRanges {
-			parts := strings.Split(ar, "-")
-			if len(parts) == 2 {
-				conditions = append(conditions, "(w.age BETWEEN ? AND ?)")
-				args = append(args, parts[0], parts[1])
-			}
-		}
-		if len(conditions) > 0 {
-			sql += " AND (" + strings.Join(conditions, " OR ") + ")"
-		}
-	}
+	condition, filterArgs := buildWomanFilterCondition(i.BloodTypes, i.AgeRanges)
+	sql += condition
+	args = append(args, filterArgs...)
 
 	var total uint
 	if err := r.db.WithContext(ctx).Raw(sql, args...).Scan(&total).Error; err != nil {
@@ -63,7 +44,7 @@ func (r *womanDistrictRepository) CountByDistrictWithCondition(ctx context.Conte
 	return total, nil
 }
 
-func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input.GetWomanDistrictListInput) (collection.Collection[dto.WomanDTO], error) {
+func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input.GetWomanDistrictListInput) (collection.Collection[querymodel.WomanQueryModel], error) {
 	offset := (i.Page - 1) * limit
 
 	subQuery := `
@@ -76,27 +57,9 @@ func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input
 		AND d.id = ?`
 
 	args := []any{i.DistrictID}
-
-	if len(i.BloodTypes) > 0 {
-		subQuery += " AND w.blood_type IN (?" + strings.Repeat(",?", len(i.BloodTypes)-1) + ")"
-		for _, bt := range i.BloodTypes {
-			args = append(args, bt)
-		}
-	}
-
-	if len(i.AgeRanges) > 0 {
-		conditions := make([]string, 0, len(i.AgeRanges))
-		for _, ar := range i.AgeRanges {
-			parts := strings.Split(ar, "-")
-			if len(parts) == 2 {
-				conditions = append(conditions, "(w.age BETWEEN ? AND ?)")
-				args = append(args, parts[0], parts[1])
-			}
-		}
-		if len(conditions) > 0 {
-			subQuery += " AND (" + strings.Join(conditions, " OR ") + ")"
-		}
-	}
+	condition, filterArgs := buildWomanFilterCondition(i.BloodTypes, i.AgeRanges)
+	subQuery += condition
+	args = append(args, filterArgs...)
 
 	subQuery += " ORDER BY w.id LIMIT ? OFFSET ?"
 	args = append(args, limit, offset)
@@ -135,7 +98,7 @@ func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, args...).Scan(&rows).Error; err != nil {
-		return collection.NewCollection[dto.WomanDTO](nil), err
+		return collection.NewCollection[querymodel.WomanQueryModel](nil), err
 	}
-	return womanMapper.MapToDTO(rows), nil
+	return womanMapper.MapToQueryModel(rows), nil
 }

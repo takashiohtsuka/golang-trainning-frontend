@@ -2,17 +2,17 @@ package store
 
 import (
 	"golang-trainning-frontend/pkg/collection"
-	"golang-trainning-frontend/pkg/dto"
-	fvo "golang-trainning-frontend/pkg/dto/valueobject"
+	"golang-trainning-frontend/pkg/querymodel"
+	fvo "golang-trainning-frontend/pkg/querymodel/valueobject"
 	"golang-trainning-frontend/pkg/helper"
 )
 
-// MapToDTO は flat な rows を Store DTO のコレクションに変換する。
-func MapToDTO(rows []map[string]any) collection.Collection[dto.StoreDTO] {
+// MapToQueryModel は flat な rows を StoreQueryModel のコレクションに変換する。
+func MapToQueryModel(rows []map[string]any) collection.Collection[querymodel.StoreQueryModel] {
 	storeOrder := make([]uint, 0)
-	storeMap := make(map[uint]*dto.Store)
+	storeMap := make(map[uint]*querymodel.Store)
 	womanOrderByStore := make(map[uint][]uint)
-	womanMap := make(map[uint]*dto.Woman)
+	womanMap := make(map[uint]*querymodel.Woman)
 	seenWomenByStore := make(map[uint]map[uint]bool)
 	seenBlogs := make(map[uint]map[uint]bool)
 
@@ -21,7 +21,7 @@ func MapToDTO(rows []map[string]any) collection.Collection[dto.StoreDTO] {
 
 		if _, exists := storeMap[storeID]; !exists {
 			storeOrder = append(storeOrder, storeID)
-			storeMap[storeID] = &dto.Store{
+			storeMap[storeID] = &querymodel.Store{
 				ID:           storeID,
 				District:     fvo.NewDistrict(helper.ToUint(row["district_id"]), helper.ToString(row["district_name"])),
 				Prefecture:   fvo.NewPrefecture(helper.ToUint(row["prefecture_id"]), helper.ToString(row["prefecture_name"])),
@@ -46,7 +46,7 @@ func MapToDTO(rows []map[string]any) collection.Collection[dto.StoreDTO] {
 		}
 
 		if _, exists := womanMap[womanID]; !exists {
-			womanMap[womanID] = &dto.Woman{
+			womanMap[womanID] = &querymodel.Woman{
 				ID:         womanID,
 				Name:       helper.ToString(row["woman_name"]),
 				Age:        helper.ToIntPtr(row["age"]),
@@ -61,26 +61,26 @@ func MapToDTO(rows []map[string]any) collection.Collection[dto.StoreDTO] {
 		if blogID != 0 && !seenBlogs[womanID][blogID] {
 			seenBlogs[womanID][blogID] = true
 			current := womanMap[womanID].Blogs.All()
-			current = append(current, &dto.Blog{
+			current = append(current, &querymodel.Blog{
 				ID:          blogID,
 				WomanID:     womanID,
 				Title:       helper.ToString(row["blog_title"]),
 				IsPublished: true,
-				Photos:      collection.NewCollection[dto.Photo](nil),
+				Photos:      collection.NewCollection[querymodel.Photo](nil),
 			})
 			womanMap[womanID].Blogs = collection.NewCollection(current)
 		}
 	}
 
 	for storeID, womanIDs := range womanOrderByStore {
-		women := make([]dto.WomanDTO, 0, len(womanIDs))
+		women := make([]querymodel.WomanQueryModel, 0, len(womanIDs))
 		for _, wid := range womanIDs {
 			women = append(women, womanMap[wid])
 		}
 		storeMap[storeID].Women = collection.NewCollection(women)
 	}
 
-	items := make([]dto.StoreDTO, 0, len(storeOrder))
+	items := make([]querymodel.StoreQueryModel, 0, len(storeOrder))
 	for _, storeID := range storeOrder {
 		items = append(items, storeMap[storeID])
 	}

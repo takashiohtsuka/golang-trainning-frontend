@@ -1,6 +1,6 @@
 package stores
 
-import "golang-trainning-frontend/pkg/dto"
+import "golang-trainning-frontend/pkg/querymodel"
 
 // --- list ---
 
@@ -37,7 +37,7 @@ type DetailResponse struct {
 
 // --- builders ---
 
-func NewListResponse(stores []dto.StoreDTO) ListResponse {
+func NewListResponse(stores []querymodel.StoreQueryModel) ListResponse {
 	items := make([]StoreListItem, 0, len(stores))
 	for _, s := range stores {
 		items = append(items, toStoreListItem(s))
@@ -45,7 +45,7 @@ func NewListResponse(stores []dto.StoreDTO) ListResponse {
 	return ListResponse{Stores: items}
 }
 
-func toStoreListItem(s dto.StoreDTO) StoreListItem {
+func toStoreListItem(s querymodel.StoreQueryModel) StoreListItem {
 	return StoreListItem{
 		ID:           s.GetID(),
 		Name:         s.GetName(),
@@ -54,7 +54,7 @@ func toStoreListItem(s dto.StoreDTO) StoreListItem {
 	}
 }
 
-func NewDetailResponse(s dto.StoreDTO) DetailResponse {
+func NewDetailResponse(s querymodel.StoreQueryModel) DetailResponse {
 	return DetailResponse{
 		ID:           s.GetID(),
 		Name:         s.GetName(),
@@ -63,7 +63,7 @@ func NewDetailResponse(s dto.StoreDTO) DetailResponse {
 	}
 }
 
-func toWomenItems(s dto.StoreDTO) []WomanItem {
+func toWomenItems(s querymodel.StoreQueryModel) []WomanItem {
 	women := make([]WomanItem, 0)
 	for _, w := range s.GetWomen().All() {
 		blogs := make([]BlogItem, 0)

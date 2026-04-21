@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"golang-trainning-frontend/pkg/collection"
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 	storeMapper "golang-trainning-frontend/pkg/adapter/mapper/store"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 
@@ -19,7 +19,7 @@ func NewStoreRegionRepository(db *gorm.DB) outputport.StoreRegionRepository {
 	return &storeRegionRepository{db: db}
 }
 
-func (r *storeRegionRepository) FindPickupByRegion(ctx context.Context, regionID uint) (collection.Collection[dto.StoreDTO], error) {
+func (r *storeRegionRepository) FindPickupByRegion(ctx context.Context, regionID uint) (collection.Collection[querymodel.StoreQueryModel], error) {
 	sql := `
 		SELECT
 			s.id            AS store_id,
@@ -72,7 +72,7 @@ func (r *storeRegionRepository) FindPickupByRegion(ctx context.Context, regionID
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, storeWomenLimit, storeBlogsPerWomanLimit, regionID, storeRegionPickupLimit).Scan(&rows).Error; err != nil {
-		return collection.NewCollection[dto.StoreDTO](nil), err
+		return collection.NewCollection[querymodel.StoreQueryModel](nil), err
 	}
-	return storeMapper.MapToDTO(rows), nil
+	return storeMapper.MapToQueryModel(rows), nil
 }

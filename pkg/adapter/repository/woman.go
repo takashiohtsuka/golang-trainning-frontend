@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"golang-trainning-frontend/pkg/collection"
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 	womanMapper "golang-trainning-frontend/pkg/adapter/mapper/woman"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 	"golang-trainning-frontend/pkg/helper"
@@ -23,7 +23,7 @@ func NewWomanRepository(db *gorm.DB) outputport.WomanRepository {
 	return &womanRepository{db: db}
 }
 
-func (r *womanRepository) FindAll(ctx context.Context, conditions []query.Condition) (collection.Collection[dto.WomanDTO], error) {
+func (r *womanRepository) FindAll(ctx context.Context, conditions []query.Condition) (collection.Collection[querymodel.WomanQueryModel], error) {
 	where, args := buildWhereClause(conditions)
 
 	sql := `
@@ -56,12 +56,12 @@ func (r *womanRepository) FindAll(ctx context.Context, conditions []query.Condit
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, allArgs...).Scan(&rows).Error; err != nil {
-		return collection.NewCollection[dto.WomanDTO](nil), err
+		return collection.NewCollection[querymodel.WomanQueryModel](nil), err
 	}
-	return womanMapper.MapToDTO(rows), nil
+	return womanMapper.MapToQueryModel(rows), nil
 }
 
-func (r *womanRepository) FindOne(ctx context.Context, conditions []query.Condition) (dto.WomanDTO, error) {
+func (r *womanRepository) FindOne(ctx context.Context, conditions []query.Condition) (querymodel.WomanQueryModel, error) {
 	where, args := buildWhereClause(conditions)
 
 	sql := `
@@ -91,20 +91,20 @@ func (r *womanRepository) FindOne(ctx context.Context, conditions []query.Condit
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, args...).Scan(&rows).Error; err != nil {
-		return &dto.NilWoman{}, err
+		return &querymodel.NilWoman{}, err
 	}
 	if len(rows) == 0 {
-		return &dto.NilWoman{}, nil
+		return &querymodel.NilWoman{}, nil
 	}
 
 	return mapToWomanOne(rows), nil
 }
 
-func mapToWomanOne(rows []map[string]any) dto.WomanDTO {
+func mapToWomanOne(rows []map[string]any) querymodel.WomanQueryModel {
 	base := rows[0]
 	womanID := helper.ToUint(base["woman_id"])
 
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:         womanID,
 		Name:       helper.ToString(base["woman_name"]),
 		Age:        helper.ToIntPtr(base["age"]),
@@ -123,7 +123,7 @@ func mapToWomanOne(rows []map[string]any) dto.WomanDTO {
 		if assignmentID != 0 && !seenStores[assignmentID] {
 			seenStores[assignmentID] = true
 			stores := w.Stores.All()
-			stores = append(stores, dto.WomanStore{
+			stores = append(stores, querymodel.WomanStore{
 				ID:   helper.ToUint(row["assignment_store_id"]),
 				Name: helper.ToString(row["assignment_store_name"]),
 			})
@@ -134,7 +134,7 @@ func mapToWomanOne(rows []map[string]any) dto.WomanDTO {
 		if imageID != 0 && !seenImages[imageID] {
 			seenImages[imageID] = true
 			current := w.Images.All()
-			current = append(current, dto.WomanImage{
+			current = append(current, querymodel.WomanImage{
 				ID:   imageID,
 				Path: helper.ToString(row["image_path"]),
 			})
@@ -146,13 +146,13 @@ func mapToWomanOne(rows []map[string]any) dto.WomanDTO {
 			seenBlogs[blogID] = true
 			seenPhotos[blogID] = make(map[uint]bool)
 			current := w.Blogs.All()
-			current = append(current, &dto.Blog{
+			current = append(current, &querymodel.Blog{
 				ID:          blogID,
 				WomanID:     womanID,
 				Title:       helper.ToString(row["blog_title"]),
 				Body:        helper.ToStringPtr(row["blog_body"]),
 				IsPublished: true,
-				Photos:      collection.NewCollection[dto.Photo](nil),
+				Photos:      collection.NewCollection[querymodel.Photo](nil),
 			})
 			w.Blogs = collection.NewCollection(current)
 		}
@@ -164,11 +164,11 @@ func mapToWomanOne(rows []map[string]any) dto.WomanDTO {
 			for i, b := range blogs {
 				if b.GetID() == blogID {
 					photos := b.GetPhotos().All()
-					photos = append(photos, dto.Photo{
+					photos = append(photos, querymodel.Photo{
 						ID:  photoID,
 						URL: helper.ToString(row["photo_url"]),
 					})
-					blogs[i].(*dto.Blog).Photos = collection.NewCollection(photos)
+					blogs[i].(*querymodel.Blog).Photos = collection.NewCollection(photos)
 					break
 				}
 			}

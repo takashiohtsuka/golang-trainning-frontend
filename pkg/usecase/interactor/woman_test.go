@@ -10,7 +10,7 @@ import (
 
 	"golang-trainning-frontend/pkg/apperror"
 	"golang-trainning-frontend/pkg/collection"
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/interactor"
 	"golang-trainning-frontend/pkg/usecase/query"
@@ -20,20 +20,20 @@ import (
 
 type mockWomanRepository struct {
 	findAllConditions []query.Condition
-	findAllReturn     collection.Collection[dto.WomanDTO]
+	findAllReturn     collection.Collection[querymodel.WomanQueryModel]
 	findAllError      error
 
 	findOneConditions []query.Condition
-	findOneReturn     dto.WomanDTO
+	findOneReturn     querymodel.WomanQueryModel
 	findOneError      error
 }
 
-func (m *mockWomanRepository) FindAll(_ context.Context, conditions []query.Condition) (collection.Collection[dto.WomanDTO], error) {
+func (m *mockWomanRepository) FindAll(_ context.Context, conditions []query.Condition) (collection.Collection[querymodel.WomanQueryModel], error) {
 	m.findAllConditions = conditions
 	return m.findAllReturn, m.findAllError
 }
 
-func (m *mockWomanRepository) FindOne(_ context.Context, conditions []query.Condition) (dto.WomanDTO, error) {
+func (m *mockWomanRepository) FindOne(_ context.Context, conditions []query.Condition) (querymodel.WomanQueryModel, error) {
 	m.findOneConditions = conditions
 	return m.findOneReturn, m.findOneError
 }
@@ -42,7 +42,7 @@ func (m *mockWomanRepository) FindOne(_ context.Context, conditions []query.Cond
 
 func TestWomanUsecase_GetList_WithNoStoreID_PassesEmptyConditions(t *testing.T) {
 	mock := &mockWomanRepository{
-		findAllReturn: collection.NewCollection[dto.WomanDTO](nil),
+		findAllReturn: collection.NewCollection[querymodel.WomanQueryModel](nil),
 	}
 	u := interactor.NewWomanUsecase(mock)
 
@@ -54,7 +54,7 @@ func TestWomanUsecase_GetList_WithNoStoreID_PassesEmptyConditions(t *testing.T) 
 
 func TestWomanUsecase_GetStoreWomanList_PassesStoreIDCondition(t *testing.T) {
 	mock := &mockWomanRepository{
-		findAllReturn: collection.NewCollection[dto.WomanDTO](nil),
+		findAllReturn: collection.NewCollection[querymodel.WomanQueryModel](nil),
 	}
 	u := interactor.NewWomanUsecase(mock)
 
@@ -82,7 +82,7 @@ func TestWomanUsecase_GetList_WhenRepositoryFails_ReturnsError(t *testing.T) {
 
 func TestWomanUsecase_GetDetail_PassesWomanIDCondition(t *testing.T) {
 	mock := &mockWomanRepository{
-		findOneReturn: &dto.Woman{ID: 42, Name: "女性1"},
+		findOneReturn: &querymodel.Woman{ID: 42, Name: "女性1"},
 	}
 	u := interactor.NewWomanUsecase(mock)
 

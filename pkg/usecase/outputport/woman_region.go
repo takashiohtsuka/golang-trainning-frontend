@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"golang-trainning-frontend/pkg/collection"
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 )
 
 type WomanRegionRepository interface {
-	FindPickupByRegion(ctx context.Context, regionID uint) (collection.Collection[dto.WomanDTO], error)
+	FindPickupByRegion(ctx context.Context, regionID uint) (collection.Collection[querymodel.WomanQueryModel], error)
 }

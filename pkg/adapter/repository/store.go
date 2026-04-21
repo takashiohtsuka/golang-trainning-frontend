@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 	storeMapper "golang-trainning-frontend/pkg/adapter/mapper/store"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 	"golang-trainning-frontend/pkg/usecase/query"
@@ -19,7 +19,7 @@ func NewStoreRepository(db *gorm.DB) outputport.StoreRepository {
 	return &storeRepository{db: db}
 }
 
-func (r *storeRepository) FindOne(ctx context.Context, conditions []query.Condition) (dto.StoreDTO, error) {
+func (r *storeRepository) FindOne(ctx context.Context, conditions []query.Condition) (querymodel.StoreQueryModel, error) {
 	where, args := buildWhereClauseWithPrefix(conditions, "s")
 
 	sql := `
@@ -66,12 +66,12 @@ func (r *storeRepository) FindOne(ctx context.Context, conditions []query.Condit
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, allArgs...).Scan(&rows).Error; err != nil {
-		return &dto.NilStore{}, err
+		return &querymodel.NilStore{}, err
 	}
-	result := storeMapper.MapToDTO(rows)
+	result := storeMapper.MapToQueryModel(rows)
 	all := result.All()
 	if len(all) == 0 {
-		return &dto.NilStore{}, nil
+		return &querymodel.NilStore{}, nil
 	}
 	return all[0], nil
 }

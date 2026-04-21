@@ -8,7 +8,7 @@ import (
 
 	"golang-trainning-frontend/pkg/collection"
 	"golang-trainning-frontend/pkg/adapter/response/women"
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 )
 
 // --- helpers ---
@@ -19,14 +19,14 @@ func intPtr(i int) *int       { return &i }
 // --- NewListResponse tests ---
 
 func TestNewListResponse_WithEmptySlice_ReturnsEmptyList(t *testing.T) {
-	result := women.NewListResponse([]dto.WomanDTO{})
+	result := women.NewListResponse([]querymodel.WomanQueryModel{})
 
 	require.NotNil(t, result.Women)
 	assert.Empty(t, result.Women)
 }
 
 func TestNewListResponse_MapsBasicFields(t *testing.T) {
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:         1,
 		Name:       "女性1",
 		Age:        intPtr(25),
@@ -35,10 +35,10 @@ func TestNewListResponse_MapsBasicFields(t *testing.T) {
 		Hobby:      strPtr("読書"),
 		Stores:     collection.NewCollection[dto.WomanStore](nil),
 		Images:     collection.NewCollection[dto.WomanImage](nil),
-		Blogs:      collection.NewCollection[dto.BlogDTO](nil),
+		Blogs:      collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
-	result := women.NewListResponse([]dto.WomanDTO{w})
+	result := women.NewListResponse([]querymodel.WomanQueryModel{w})
 
 	require.Len(t, result.Women, 1)
 	item := result.Women[0]
@@ -51,19 +51,19 @@ func TestNewListResponse_MapsBasicFields(t *testing.T) {
 }
 
 func TestNewListResponse_MapsStores(t *testing.T) {
-	stores := []dto.WomanStore{
+	stores := []querymodel.WomanStore{
 		{ID: 100, Name: "店舗1"},
 		{ID: 101, Name: "店舗2"},
 	}
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection(stores),
 		Images: collection.NewCollection[dto.WomanImage](nil),
-		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
+		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
-	result := women.NewListResponse([]dto.WomanDTO{w})
+	result := women.NewListResponse([]querymodel.WomanQueryModel{w})
 
 	require.Len(t, result.Women[0].Stores, 2)
 	assert.Equal(t, uint(100), result.Women[0].Stores[0].ID)
@@ -73,18 +73,18 @@ func TestNewListResponse_MapsStores(t *testing.T) {
 }
 
 func TestNewListResponse_MapsImages(t *testing.T) {
-	images := []dto.WomanImage{
+	images := []querymodel.WomanImage{
 		{ID: 20, Path: "images/photo1.jpg"},
 	}
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection[dto.WomanStore](nil),
 		Images: collection.NewCollection(images),
-		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
+		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
-	result := women.NewListResponse([]dto.WomanDTO{w})
+	result := women.NewListResponse([]querymodel.WomanQueryModel{w})
 
 	require.Len(t, result.Women[0].Images, 1)
 	assert.Equal(t, uint(20), result.Women[0].Images[0].ID)
@@ -92,11 +92,11 @@ func TestNewListResponse_MapsImages(t *testing.T) {
 }
 
 func TestNewListResponse_MapsBlogs(t *testing.T) {
-	blogs := []dto.BlogDTO{
-		&dto.Blog{ID: 30, Title: "ブログ1", Photos: collection.NewCollection[dto.Photo](nil)},
-		&dto.Blog{ID: 31, Title: "ブログ2", Photos: collection.NewCollection[dto.Photo](nil)},
+	blogs := []querymodel.BlogQueryModel{
+		&querymodel.Blog{ID: 30, Title: "ブログ1", Photos: collection.NewCollection[dto.Photo](nil)},
+		&querymodel.Blog{ID: 31, Title: "ブログ2", Photos: collection.NewCollection[dto.Photo](nil)},
 	}
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection[dto.WomanStore](nil),
@@ -104,7 +104,7 @@ func TestNewListResponse_MapsBlogs(t *testing.T) {
 		Blogs:  collection.NewCollection(blogs),
 	}
 
-	result := women.NewListResponse([]dto.WomanDTO{w})
+	result := women.NewListResponse([]querymodel.WomanQueryModel{w})
 
 	require.Len(t, result.Women[0].Blogs, 2)
 	assert.Equal(t, uint(30), result.Women[0].Blogs[0].ID)
@@ -114,22 +114,22 @@ func TestNewListResponse_MapsBlogs(t *testing.T) {
 }
 
 func TestNewListResponse_WithMultipleWomen_MapsAll(t *testing.T) {
-	w1 := &dto.Woman{
+	w1 := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection[dto.WomanStore](nil),
 		Images: collection.NewCollection[dto.WomanImage](nil),
-		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
+		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
-	w2 := &dto.Woman{
+	w2 := &querymodel.Woman{
 		ID:     2,
 		Name:   "女性2",
 		Stores: collection.NewCollection[dto.WomanStore](nil),
 		Images: collection.NewCollection[dto.WomanImage](nil),
-		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
+		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
-	result := women.NewListResponse([]dto.WomanDTO{w1, w2})
+	result := women.NewListResponse([]querymodel.WomanQueryModel{w1, w2})
 
 	require.Len(t, result.Women, 2)
 	assert.Equal(t, uint(1), result.Women[0].ID)
@@ -139,7 +139,7 @@ func TestNewListResponse_WithMultipleWomen_MapsAll(t *testing.T) {
 // --- NewDetailResponse tests ---
 
 func TestNewDetailResponse_MapsBasicFields(t *testing.T) {
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:         1,
 		Name:       "女性1",
 		Age:        intPtr(30),
@@ -148,7 +148,7 @@ func TestNewDetailResponse_MapsBasicFields(t *testing.T) {
 		Hobby:      strPtr("映画"),
 		Stores:     collection.NewCollection[dto.WomanStore](nil),
 		Images:     collection.NewCollection[dto.WomanImage](nil),
-		Blogs:      collection.NewCollection[dto.BlogDTO](nil),
+		Blogs:      collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
 	result := women.NewDetailResponse(w)
@@ -162,12 +162,12 @@ func TestNewDetailResponse_MapsBasicFields(t *testing.T) {
 }
 
 func TestNewDetailResponse_WithNilOptionalFields_MapsAsNil(t *testing.T) {
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection[dto.WomanStore](nil),
 		Images: collection.NewCollection[dto.WomanImage](nil),
-		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
+		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
 	result := women.NewDetailResponse(w)
@@ -180,15 +180,15 @@ func TestNewDetailResponse_WithNilOptionalFields_MapsAsNil(t *testing.T) {
 
 func TestNewDetailResponse_MapsBlogsWithPhotos(t *testing.T) {
 	body := "本文"
-	blogs := []dto.BlogDTO{
-		&dto.Blog{
+	blogs := []querymodel.BlogQueryModel{
+		&querymodel.Blog{
 			ID:     30,
 			Title:  "ブログ1",
 			Body:   &body,
-			Photos: collection.NewCollection([]dto.Photo{{ID: 50, URL: "photos/photo1.jpg"}}),
+			Photos: collection.NewCollection([]querymodel.Photo{{ID: 50, URL: "photos/photo1.jpg"}}),
 		},
 	}
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection[dto.WomanStore](nil),
@@ -209,19 +209,19 @@ func TestNewDetailResponse_MapsBlogsWithPhotos(t *testing.T) {
 }
 
 func TestNewDetailResponse_MapsMultipleBlogsWithPhotos(t *testing.T) {
-	blogs := []dto.BlogDTO{
-		&dto.Blog{
+	blogs := []querymodel.BlogQueryModel{
+		&querymodel.Blog{
 			ID:     30,
 			Title:  "ブログ1",
-			Photos: collection.NewCollection([]dto.Photo{{ID: 50, URL: "photos/1.jpg"}, {ID: 51, URL: "photos/2.jpg"}}),
+			Photos: collection.NewCollection([]querymodel.Photo{{ID: 50, URL: "photos/1.jpg"}, {ID: 51, URL: "photos/2.jpg"}}),
 		},
-		&dto.Blog{
+		&querymodel.Blog{
 			ID:     31,
 			Title:  "ブログ2",
 			Photos: collection.NewCollection[dto.Photo](nil),
 		},
 	}
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection[dto.WomanStore](nil),
@@ -237,16 +237,16 @@ func TestNewDetailResponse_MapsMultipleBlogsWithPhotos(t *testing.T) {
 }
 
 func TestNewDetailResponse_MapsImages(t *testing.T) {
-	images := []dto.WomanImage{
+	images := []querymodel.WomanImage{
 		{ID: 20, Path: "images/photo1.jpg"},
 		{ID: 21, Path: "images/photo2.jpg"},
 	}
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection[dto.WomanStore](nil),
 		Images: collection.NewCollection(images),
-		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
+		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
 	result := women.NewDetailResponse(w)
@@ -259,12 +259,12 @@ func TestNewDetailResponse_MapsImages(t *testing.T) {
 }
 
 func TestNewDetailResponse_WithEmptyCollections_ReturnsEmptySlices(t *testing.T) {
-	w := &dto.Woman{
+	w := &querymodel.Woman{
 		ID:     1,
 		Name:   "女性1",
 		Stores: collection.NewCollection[dto.WomanStore](nil),
 		Images: collection.NewCollection[dto.WomanImage](nil),
-		Blogs:  collection.NewCollection[dto.BlogDTO](nil),
+		Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 	}
 
 	result := women.NewDetailResponse(w)

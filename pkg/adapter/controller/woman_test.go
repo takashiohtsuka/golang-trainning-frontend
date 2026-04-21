@@ -13,7 +13,7 @@ import (
 	"golang-trainning-frontend/pkg/collection"
 	"golang-trainning-frontend/pkg/adapter/controller"
 	responseWomen "golang-trainning-frontend/pkg/adapter/response/women"
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/query"
 )
@@ -41,20 +41,20 @@ func (m *mockContext) Request() *http.Request            { return &http.Request{
 
 type mockWomanUsecase struct {
 	getListInput  input.GetWomanListInput
-	getListReturn collection.Collection[dto.WomanDTO]
+	getListReturn collection.Collection[querymodel.WomanQueryModel]
 	getListError  error
 
 	getDetailInput  input.GetWomanDetailInput
-	getDetailReturn dto.WomanDTO
+	getDetailReturn querymodel.WomanQueryModel
 	getDetailError  error
 }
 
-func (m *mockWomanUsecase) GetList(_ context.Context, i input.GetWomanListInput) (collection.Collection[dto.WomanDTO], error) {
+func (m *mockWomanUsecase) GetList(_ context.Context, i input.GetWomanListInput) (collection.Collection[querymodel.WomanQueryModel], error) {
 	m.getListInput = i
 	return m.getListReturn, m.getListError
 }
 
-func (m *mockWomanUsecase) GetDetail(i input.GetWomanDetailInput) (dto.WomanDTO, error) {
+func (m *mockWomanUsecase) GetDetail(i input.GetWomanDetailInput) (querymodel.WomanQueryModel, error) {
 	m.getDetailInput = i
 	return m.getDetailReturn, m.getDetailError
 }
@@ -63,7 +63,7 @@ func (m *mockWomanUsecase) GetDetail(i input.GetWomanDetailInput) (dto.WomanDTO,
 
 func TestWomanController_GetWomanList_WithNoStoreID_Returns200(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getListReturn: collection.NewCollection[dto.WomanDTO](nil),
+		getListReturn: collection.NewCollection[querymodel.WomanQueryModel](nil),
 	}
 	ctx := &mockContext{queryParams: map[string]string{}}
 
@@ -77,7 +77,7 @@ func TestWomanController_GetWomanList_WithNoStoreID_Returns200(t *testing.T) {
 
 func TestWomanController_GetWomanList_WithValidStoreID_PassesStoreIDToUsecase(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getListReturn: collection.NewCollection[dto.WomanDTO](nil),
+		getListReturn: collection.NewCollection[querymodel.WomanQueryModel](nil),
 	}
 	ctx := &mockContext{queryParams: map[string]string{"store_id": "1"}}
 
@@ -118,7 +118,7 @@ func TestWomanController_GetWomanList_WhenUsecaseFails_Returns500(t *testing.T) 
 
 func TestWomanController_GetWomanDetail_WithValidID_Returns200(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getDetailReturn: &dto.Woman{ID: 1, Name: "女性1"},
+		getDetailReturn: &querymodel.Woman{ID: 1, Name: "女性1"},
 	}
 	ctx := &mockContext{params: map[string]string{"id": "1"}}
 
@@ -171,13 +171,13 @@ func TestWomanController_GetWomanDetail_WhenUsecaseFails_Returns500(t *testing.T
 
 func TestWomanController_GetWomanList_ResponseBodyIsListResponse(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getListReturn: collection.NewCollection[dto.WomanDTO]([]dto.WomanDTO{
-			&dto.Woman{
+		getListReturn: collection.NewCollection[querymodel.WomanQueryModel]([]querymodel.WomanQueryModel{
+			&querymodel.Woman{
 				ID:     1,
 				Name:   "女性1",
 				Stores: collection.NewCollection[dto.WomanStore](nil),
 				Images: collection.NewCollection[dto.WomanImage](nil),
-				Blogs:  collection.NewCollection[dto.BlogDTO](nil),
+				Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 			},
 		}),
 	}
@@ -199,12 +199,12 @@ func TestWomanController_GetWomanList_ResponseBodyIsListResponse(t *testing.T) {
 
 func TestWomanController_GetWomanDetail_ResponseBodyIsDetailResponse(t *testing.T) {
 	uc := &mockWomanUsecase{
-		getDetailReturn: &dto.Woman{
+		getDetailReturn: &querymodel.Woman{
 			ID:     1,
 			Name:   "女性1",
 			Stores: collection.NewCollection[dto.WomanStore](nil),
 			Images: collection.NewCollection[dto.WomanImage](nil),
-			Blogs:  collection.NewCollection[dto.BlogDTO](nil),
+			Blogs:  collection.NewCollection[querymodel.BlogQueryModel](nil),
 		},
 	}
 	ctx := &mockContext{params: map[string]string{"id": "1"}}

@@ -1,6 +1,6 @@
 package women
 
-import "golang-trainning-frontend/pkg/dto"
+import "golang-trainning-frontend/pkg/querymodel"
 
 // --- list ---
 
@@ -64,7 +64,7 @@ type PhotoItem struct {
 
 // --- builders ---
 
-func NewListResponse(women []dto.WomanDTO) ListResponse {
+func NewListResponse(women []querymodel.WomanQueryModel) ListResponse {
 	items := make([]WomanListItem, 0, len(women))
 	for _, w := range women {
 		items = append(items, toWomanListItem(w))
@@ -72,7 +72,7 @@ func NewListResponse(women []dto.WomanDTO) ListResponse {
 	return ListResponse{Women: items}
 }
 
-func toWomanListItem(w dto.WomanDTO) WomanListItem {
+func toWomanListItem(w querymodel.WomanQueryModel) WomanListItem {
 	stores := make([]StoreItem, 0)
 	for _, s := range w.GetStores().All() {
 		stores = append(stores, StoreItem{
@@ -111,7 +111,7 @@ func toWomanListItem(w dto.WomanDTO) WomanListItem {
 	}
 }
 
-func NewDetailResponse(w dto.WomanDTO) DetailResponse {
+func NewDetailResponse(w querymodel.WomanQueryModel) DetailResponse {
 	stores := make([]StoreItem, 0)
 	for _, s := range w.GetStores().All() {
 		stores = append(stores, StoreItem{

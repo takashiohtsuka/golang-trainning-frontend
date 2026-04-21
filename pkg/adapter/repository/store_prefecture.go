@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"golang-trainning-frontend/pkg/collection"
-	"golang-trainning-frontend/pkg/dto"
+	"golang-trainning-frontend/pkg/querymodel"
 	storeMapper "golang-trainning-frontend/pkg/adapter/mapper/store"
 	"golang-trainning-frontend/pkg/usecase/outputport"
 
@@ -19,7 +19,7 @@ func NewStorePrefectureRepository(db *gorm.DB) outputport.StorePrefectureReposit
 	return &storePrefectureRepository{db: db}
 }
 
-func (r *storePrefectureRepository) FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[dto.StoreDTO], error) {
+func (r *storePrefectureRepository) FindAllByPrefecture(ctx context.Context, prefectureID uint) (collection.Collection[querymodel.StoreQueryModel], error) {
 	sql := `
 		SELECT
 			s.id            AS store_id,
@@ -63,7 +63,7 @@ func (r *storePrefectureRepository) FindAllByPrefecture(ctx context.Context, pre
 
 	var rows []map[string]any
 	if err := r.db.WithContext(ctx).Raw(sql, storeWomenLimit, storeBlogsPerWomanLimit, prefectureID).Scan(&rows).Error; err != nil {
-		return collection.NewCollection[dto.StoreDTO](nil), err
+		return collection.NewCollection[querymodel.StoreQueryModel](nil), err
 	}
-	return storeMapper.MapToDTO(rows), nil
+	return storeMapper.MapToQueryModel(rows), nil
 }
