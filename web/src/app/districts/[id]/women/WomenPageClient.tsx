@@ -2,7 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePageParam } from "@/components/pagination/usePageParam";
-import WomenSection from "./WomenSection";
+import FilterPanel from "./FilterPanel";
+import WomenList from "./WomenList";
 
 type Props = {
   districtId: string;
@@ -25,13 +26,20 @@ export default function WomenPageClient({ districtId }: Props) {
   };
 
   return (
-    <WomenSection
-      districtId={districtId}
-      page={page}
-      onPageChange={goToPage}
-      bloodTypes={bloodTypes}
-      ageRanges={ageRanges}
-      onSearch={onSearch}
-    />
+    <>
+      <FilterPanel
+        districtId={districtId}
+        onSearch={onSearch}
+        initialBloodTypes={bloodTypes}
+        initialAgeRanges={ageRanges}
+      />
+      <WomenList
+        districtId={districtId}
+        bloodTypes={bloodTypes}
+        ageRanges={ageRanges}
+        page={page}
+        onPageChange={goToPage}
+      />
+    </>
   );
 }

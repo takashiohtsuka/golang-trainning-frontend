@@ -6,13 +6,14 @@ export async function fetchDistrictWomen(
   districtId: string,
   bloodTypes: string[] = [],
   ageRanges: string[] = [],
-  page: number = 1
+  page: number = 1,
+  options?: RequestInit
 ): Promise<DistrictWomenResponse> {
   const params = new URLSearchParams();
   params.set("page", String(page));
   if (bloodTypes.length > 0) params.set("blood_type", bloodTypes.join(","));
   if (ageRanges.length > 0) params.set("age_range", ageRanges.join(","));
-  const res = await fetch(`${BASE_URL}/districts/${districtId}/women?${params.toString()}`);
+  const res = await fetch(`${BASE_URL}/districts/${districtId}/women?${params.toString()}`, options);
   if (!res.ok) throw new Error(`${res.status}`);
   return res.json() as Promise<DistrictWomenResponse>;
 }

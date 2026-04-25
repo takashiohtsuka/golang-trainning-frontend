@@ -25,7 +25,7 @@ func NewWomanDistrictRepository(db *gorm.DB) outputport.WomanDistrictRepository 
 
 func (r *womanDistrictRepository) CountByDistrictWithCondition(ctx context.Context, i input.GetWomanDistrictCountInput) (uint, error) {
 	sql := `
-		SELECT COUNT(DISTINCT w.id)
+		SELECT COUNT(DISTINCT w.id, wsa.id)
 		FROM women w
 		JOIN woman_store_assignments wsa ON wsa.woman_id = w.id
 		JOIN stores s ON s.id = wsa.store_id AND s.deleted_at IS NULL AND s.is_active = TRUE
@@ -49,7 +49,7 @@ func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input
 	offset := (i.Page - 1) * limit
 
 	subQuery := `
-		SELECT DISTINCT w.id
+		SELECT DISTINCT w.id AS woman_id, wsa.id AS assignment_id
 		FROM women w
 		JOIN woman_store_assignments wsa ON wsa.woman_id = w.id
 		JOIN stores s   ON s.id = wsa.store_id AND s.deleted_at IS NULL AND s.is_active = TRUE
@@ -62,7 +62,7 @@ func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input
 	subQuery += condition
 	args = append(args, filterArgs...)
 
-	subQuery += " ORDER BY w.id LIMIT ? OFFSET ?"
+	subQuery += " ORDER BY w.id, wsa.id LIMIT ? OFFSET ?"
 	args = append(args, limit, offset)
 
 	sql := `
@@ -82,8 +82,8 @@ func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input
 			b.id            AS blog_id,
 			b.title         AS blog_title
 		FROM (` + subQuery + `) AS paged
-		JOIN women w ON w.id = paged.id
-		JOIN woman_store_assignments wsa ON wsa.woman_id = w.id
+		JOIN women w ON w.id = paged.woman_id
+		JOIN woman_store_assignments wsa ON wsa.id = paged.assignment_id
 		JOIN stores s ON s.id = wsa.store_id AND s.deleted_at IS NULL
 		LEFT JOIN business_types bt ON bt.id = s.business_type_id
 		LEFT JOIN woman_images wi ON wi.woman_id = w.id
@@ -93,7 +93,7 @@ func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input
 			FROM blogs
 			WHERE deleted_at IS NULL AND is_published = TRUE
 		) b ON b.woman_id = w.id AND b.rn <= ?
-		ORDER BY w.id, wi.id, b.id`
+		ORDER BY w.id, wsa.id, wi.id, b.id`
 
 	args = append(args, womanDistrictBlogsLimit)
 

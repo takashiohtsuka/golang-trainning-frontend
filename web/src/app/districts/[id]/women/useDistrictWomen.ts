@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { fetchDistrictWomen } from "@/api/woman";
-import type { WomanListItem } from "@/interfaces/district/womanList";
+import type { WomanListItem, DistrictWomenResponse } from "@/interfaces/district/womanList";
 
 type UseDistrictWomenParams = {
   districtId: string;
@@ -19,21 +19,19 @@ type UseDistrictWomenReturnValue = {
 };
 
 export function useDistrictWomen({ districtId, bloodTypes, ageRanges, page }: UseDistrictWomenParams): UseDistrictWomenReturnValue {
-  const [women, setWomen] = useState<WomanListItem[]>([]);
-  const [total, setTotal] = useState<number>(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const sortedBloodTypes = [...bloodTypes].sort();
+  const sortedAgeRanges = [...ageRanges].sort();
 
-  useEffect(() => {
-    setLoading(true);
-    fetchDistrictWomen(districtId, bloodTypes, ageRanges, page)
-      .then((data) => {
-        setWomen(data.women);
-        setTotal(data.total);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [districtId, bloodTypes, ageRanges, page]);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["districtWomen", districtId, sortedBloodTypes, sortedAgeRanges, page],
+    queryFn: () => fetchDistrictWomen(districtId, sortedBloodTypes, sortedAgeRanges, page),
+    staleTime: 30 * 1000,
+  });
 
-  return { women, total, loading, error };
+  return {
+    women: data?.women ?? [],
+    total: data?.total ?? 0,
+    loading: isLoading,
+    error: error?.message ?? null,
+  };
 }

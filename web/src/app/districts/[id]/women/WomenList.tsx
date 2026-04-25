@@ -26,7 +26,7 @@ export default function WomenList({ districtId, bloodTypes = [], ageRanges = [],
       <p>総件数: {total}件</p>
       <ul>
         {women.map((w) => (
-          <li key={w.id}>
+          <li key={`${w.id}-${w.stores[0]?.id ?? 0}`}>
             <strong>{w.name}</strong>
             {w.age != null && <span> / {w.age}歳</span>}
             {w.birthplace && <span> / {w.birthplace}</span>}

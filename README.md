@@ -108,3 +108,74 @@ pkg/
 | GET | `/frontend/women/:id` | 女性詳細 |
 | GET | `/frontend/districts/:id/women` | 地区の女性一覧 |
 | GET | `/frontend/districts/:id/search-woman-count` | 地区の女性絞り込み件数 |
+
+---
+
+## フロントエンド構成（web/）
+
+### 技術スタック
+
+| 技術 | バージョン | 役割 |
+|---|---|---|
+| Next.js | 16.2.4 | App Router / SSR / ルーティング |
+| React | 19.2.4 | UI ライブラリ |
+| TypeScript | ^5 | 型安全 |
+| TanStack Query | ^5.99.2 | サーバー状態管理・キャッシュ |
+| TanStack Query Devtools | ^5.99.2 | キャッシュデバッグ |
+
+### ディレクトリ構成
+
+```
+web/src/
+├── app/                          # Next.js App Router
+│   ├── layout.tsx                # ルートレイアウト（Providers をラップ）
+│   ├── providers.tsx             # QueryClientProvider + ReactQueryDevtools
+│   └── districts/
+│       └── [id]/
+│           └── women/
+│               ├── page.tsx              # Server Component（SSR・HydrationBoundary）
+│               ├── WomenPageClient.tsx   # Client Component（URL・ルーティング管理）
+│               ├── FilterPanel.tsx       # フィルター状態管理・件数リアルタイム表示
+│               ├── WomenList.tsx         # 女性一覧表示・ページング
+│               └── useDistrictWomen.ts   # useQuery カスタムフック
+├── api/
+│   ├── base.ts                   # API ベース URL 設定
+│   └── woman.ts                  # 女性関連 API 関数
+├── components/
+│   ├── conditions/
+│   │   ├── BloodTypeFilter.tsx   # 血液型チェックボックス
+│   │   ├── AgeFilter.tsx         # 年齢チェックボックス
+│   │   └── WomanFilterPanel.tsx  # フィルターパネル（表示専用）
+│   └── pagination/
+│       └── usePageParam.ts       # URL クエリパラメータのページ管理フック
+├── hooks/
+│   └── useDebounce.ts            # デバウンス汎用フック
+└── interfaces/
+    ├── district/
+    │   ├── womanList.ts          # DistrictWomenResponse 型
+    │   └── womanCount.ts         # DistrictWomanCountResponse 型
+    └── woman/
+        └── list.ts               # WomanListItem など共通型
+```
+
+### データフロー（district/[id]/women）
+
+```
+page.tsx（Server Component）
+  prefetchQuery → dehydrate → HydrationBoundary
+    ↓ キャッシュをクライアントへ渡す
+WomenPageClient（Client Component）
+  URL の blood_type / age_range / page を読み取り props に変換
+    ├── FilterPanel
+    │     useDebounce(500ms) → useQuery（districtWomanCount）
+    │     件数リアルタイム表示 / 検索ボタンで URL 更新
+    └── WomenList
+          useDistrictWomen（useQuery: districtWomen）
+          女性一覧表示 / ページング
+```
+
+### キャッシュ戦略
+
+- `staleTime: 30 * 1000`：取得後30秒間は再フェッチしない
+- `next: { revalidate: 30 }`：サーバー側 fetch キャッシュで Go サーバーへのリクエストを30秒抑制
+- queryKey の配列を sort してフィルター選択順序に関係なくキャッシュを一致させる
