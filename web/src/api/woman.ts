@@ -1,6 +1,6 @@
+import { BASE_URL, fetchJSON } from "./base";
 import type { DistrictWomenResponse } from "@/interfaces/district/womanList";
 import type { DistrictWomanCountResponse } from "@/interfaces/district/womanCount";
-import { BASE_URL } from "./base";
 
 export async function fetchDistrictWomen(
   districtId: string,
@@ -13,9 +13,7 @@ export async function fetchDistrictWomen(
   params.set("page", String(page));
   if (bloodTypes.length > 0) params.set("blood_type", bloodTypes.join(","));
   if (ageRanges.length > 0) params.set("age_range", ageRanges.join(","));
-  const res = await fetch(`${BASE_URL}/districts/${districtId}/women?${params.toString()}`, options);
-  if (!res.ok) throw new Error(`${res.status}`);
-  return res.json() as Promise<DistrictWomenResponse>;
+  return fetchJSON<DistrictWomenResponse>(`${BASE_URL}/districts/${districtId}/women?${params.toString()}`, options);
 }
 
 export async function fetchDistrictWomanCount(
@@ -26,7 +24,5 @@ export async function fetchDistrictWomanCount(
   const params = new URLSearchParams();
   if (bloodTypes.length > 0) params.set("blood_type", bloodTypes.join(","));
   if (ageRanges.length > 0) params.set("age_range", ageRanges.join(","));
-  const res = await fetch(`${BASE_URL}/districts/${districtId}/search-woman-count?${params.toString()}`);
-  if (!res.ok) throw new Error(`${res.status}`);
-  return res.json() as Promise<DistrictWomanCountResponse>;
+  return fetchJSON<DistrictWomanCountResponse>(`${BASE_URL}/districts/${districtId}/search-woman-count?${params.toString()}`);
 }

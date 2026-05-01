@@ -3,6 +3,10 @@
 const BLOOD_TYPES = ["A", "B", "O", "AB"] as const;
 export type BloodType = (typeof BLOOD_TYPES)[number];
 
+export function parseBloodTypes(values: string[]): BloodType[] {
+  return values.filter((v): v is BloodType => BLOOD_TYPES.includes(v as BloodType));
+}
+
 type Props = {
   selected: BloodType[];
   onChange: (conditionBloodTypes: BloodType[]) => void;

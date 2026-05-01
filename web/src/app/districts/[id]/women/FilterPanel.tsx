@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import WomanFilterPanel from "@/components/conditions/WomanFilterPanel";
+import FilterPanelShell from "@/components/conditions/FilterPanelShell";
+import BloodTypeFilter, { type BloodType, parseBloodTypes } from "@/components/conditions/BloodTypeFilter";
+import AgeFilter, { type AgeRange, parseAgeRanges } from "@/components/conditions/AgeFilter";
 import { fetchDistrictWomanCount } from "@/api/woman";
-import { type BloodType } from "@/components/conditions/BloodTypeFilter";
-import { type AgeRange } from "@/components/conditions/AgeFilter";
 import { useDebounce } from "@/hooks/useDebounce";
 
 type Props = {
@@ -14,18 +14,6 @@ type Props = {
   initialBloodTypes?: string[];
   initialAgeRanges?: string[];
 };
-
-function parseBloodTypes(values: string[]): BloodType[] {
-  const VALID: BloodType[] = ["A", "B", "O", "AB"];
-  return values.filter((v): v is BloodType => VALID.includes(v as BloodType));
-}
-
-function parseAgeRanges(values: string[]): AgeRange[] {
-  return values.flatMap((v) => {
-    const [min, max] = v.split("-").map(Number);
-    return !isNaN(min) && !isNaN(max) ? [{ min, max }] : [];
-  });
-}
 
 export default function FilterPanel({ districtId, onSearch, initialBloodTypes = [], initialAgeRanges = [] }: Props) {
   const [selectedBloodTypes, setSelectedBloodTypes] = useState<BloodType[]>(() => parseBloodTypes(initialBloodTypes));
@@ -51,13 +39,10 @@ export default function FilterPanel({ districtId, onSearch, initialBloodTypes = 
   });
 
   return (
-    <WomanFilterPanel
-      selectedBloodTypes={selectedBloodTypes}
-      onBloodTypesChange={setSelectedBloodTypes}
-      selectedAgeRanges={selectedAgeRanges}
-      onAgeRangesChange={setSelectedAgeRanges}
-      total={total ?? null}
-      onSearch={() => onSearch?.(selectedBloodTypes, ageRangeStrings)}
-    />
+    <FilterPanelShell onSearch={() => onSearch?.(selectedBloodTypes, ageRangeStrings)}>
+      <BloodTypeFilter selected={selectedBloodTypes} onChange={setSelectedBloodTypes} />
+      <AgeFilter selected={selectedAgeRanges} onChange={setSelectedAgeRanges} />
+      {total != null && <p>該当件数: {total}件</p>}
+    </FilterPanelShell>
   );
 }

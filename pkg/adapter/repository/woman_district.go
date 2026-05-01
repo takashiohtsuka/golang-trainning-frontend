@@ -6,8 +6,8 @@ import (
 	womanMapper "golang-trainning-frontend/pkg/adapter/mapper/woman"
 	"golang-trainning-frontend/pkg/collection"
 	"golang-trainning-frontend/pkg/querymodel"
-	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/outputport"
+	"golang-trainning-frontend/pkg/usecase/query"
 
 	"gorm.io/gorm"
 )
@@ -23,20 +23,16 @@ func NewWomanDistrictRepository(db *gorm.DB) outputport.WomanDistrictRepository 
 	return &womanDistrictRepository{db: db}
 }
 
-func (r *womanDistrictRepository) CountByDistrictWithCondition(ctx context.Context, i input.GetWomanDistrictCountInput) (uint, error) {
+func (r *womanDistrictRepository) CountByDistrict(ctx context.Context, conditions []query.Condition) (uint, error) {
+	where, args := buildWhereClause(conditions)
+
 	sql := `
 		SELECT COUNT(DISTINCT w.id, wsa.id)
 		FROM women w
 		JOIN woman_store_assignments wsa ON wsa.woman_id = w.id
 		JOIN stores s ON s.id = wsa.store_id AND s.deleted_at IS NULL AND s.is_active = TRUE
 		JOIN districts d ON s.district_id = d.id
-		WHERE w.deleted_at IS NULL AND w.is_active = TRUE
-		AND d.id = ?`
-
-	args := []any{i.DistrictID}
-	condition, filterArgs := buildWomanFilterCondition(i.BloodTypes, i.AgeRanges)
-	sql += condition
-	args = append(args, filterArgs...)
+		WHERE w.deleted_at IS NULL AND w.is_active = TRUE` + where
 
 	var total uint
 	if err := r.db.WithContext(ctx).Raw(sql, args...).Scan(&total).Error; err != nil {
@@ -45,24 +41,19 @@ func (r *womanDistrictRepository) CountByDistrictWithCondition(ctx context.Conte
 	return total, nil
 }
 
-func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, i input.GetWomanDistrictListInput) (collection.Collection[querymodel.WomanQueryModel], error) {
-	offset := (i.Page - 1) * limit
+func (r *womanDistrictRepository) FindAllByDistrict(ctx context.Context, conditions []query.Condition, page uint) (collection.Collection[querymodel.WomanQueryModel], error) {
+	offset := (page - 1) * limit
+
+	where, args := buildWhereClause(conditions)
 
 	subQuery := `
 		SELECT DISTINCT w.id AS woman_id, wsa.id AS assignment_id
 		FROM women w
 		JOIN woman_store_assignments wsa ON wsa.woman_id = w.id
-		JOIN stores s   ON s.id = wsa.store_id AND s.deleted_at IS NULL AND s.is_active = TRUE
+		JOIN stores s ON s.id = wsa.store_id AND s.deleted_at IS NULL AND s.is_active = TRUE
 		JOIN districts d ON s.district_id = d.id
-		WHERE w.deleted_at IS NULL AND w.is_active = TRUE
-		AND d.id = ?`
-
-	args := []any{i.DistrictID}
-	condition, filterArgs := buildWomanFilterCondition(i.BloodTypes, i.AgeRanges)
-	subQuery += condition
-	args = append(args, filterArgs...)
-
-	subQuery += " ORDER BY w.id, wsa.id LIMIT ? OFFSET ?"
+		WHERE w.deleted_at IS NULL AND w.is_active = TRUE` + where +
+		` ORDER BY w.id, wsa.id LIMIT ? OFFSET ?`
 	args = append(args, limit, offset)
 
 	sql := `

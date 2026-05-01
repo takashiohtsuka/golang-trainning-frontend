@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"strings"
 	"sync"
 
 	"golang-trainning-frontend/pkg/collection"
@@ -9,6 +10,7 @@ import (
 	"golang-trainning-frontend/pkg/usecase/input"
 	"golang-trainning-frontend/pkg/usecase/inputport"
 	"golang-trainning-frontend/pkg/usecase/outputport"
+	"golang-trainning-frontend/pkg/usecase/query"
 )
 
 type womanDistrictUsecase struct {
@@ -24,6 +26,8 @@ func (u *womanDistrictUsecase) GetList(ctx context.Context, i input.GetWomanDist
 		i.Page = 1
 	}
 
+	conditions := buildWomanDistrictConditions(i.DistrictID, i.BloodTypes, i.AgeRanges)
+
 	var (
 		women collection.Collection[querymodel.WomanQueryModel]
 		total uint
@@ -36,16 +40,12 @@ func (u *womanDistrictUsecase) GetList(ctx context.Context, i input.GetWomanDist
 
 	go func() {
 		defer wg.Done()
-		women, err1 = u.womanDistrictRepository.FindAllByDistrict(ctx, i)
+		women, err1 = u.womanDistrictRepository.FindAllByDistrict(ctx, conditions, i.Page)
 	}()
 
 	go func() {
 		defer wg.Done()
-		total, err2 = u.womanDistrictRepository.CountByDistrictWithCondition(ctx, input.GetWomanDistrictCountInput{
-			DistrictID: i.DistrictID,
-			BloodTypes: i.BloodTypes,
-			AgeRanges:  i.AgeRanges,
-		})
+		total, err2 = u.womanDistrictRepository.CountByDistrict(ctx, conditions)
 	}()
 
 	wg.Wait()
@@ -58,4 +58,21 @@ func (u *womanDistrictUsecase) GetList(ctx context.Context, i input.GetWomanDist
 	}
 
 	return women, total, nil
+}
+
+// buildWomanDistrictConditions は district ID・血液型・年齢帯から conditions を組み立てる。
+func buildWomanDistrictConditions(districtID uint, bloodTypes []string, ageRanges []string) []query.Condition {
+	conditions := []query.Condition{
+		query.Where("d.id", districtID),
+	}
+	if len(bloodTypes) > 0 {
+		conditions = append(conditions, query.WhereIn("w.blood_type", bloodTypes))
+	}
+	for _, ar := range ageRanges {
+		parts := strings.Split(ar, "-")
+		if len(parts) == 2 {
+			conditions = append(conditions, query.WhereBetweenOr("w.age", parts[0], parts[1]))
+		}
+	}
+	return conditions
 }

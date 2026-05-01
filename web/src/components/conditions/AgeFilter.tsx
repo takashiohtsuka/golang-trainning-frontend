@@ -5,6 +5,13 @@ export type AgeRange = {
   max: number;
 };
 
+export function parseAgeRanges(values: string[]): AgeRange[] {
+  return values.flatMap((v) => {
+    const [min, max] = v.split("-").map(Number);
+    return !isNaN(min) && !isNaN(max) ? [{ min, max }] : [];
+  });
+}
+
 const AGE_RANGES: AgeRange[] = [
   { min: 20, max: 25 },
   { min: 26, max: 30 },

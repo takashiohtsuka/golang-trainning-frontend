@@ -17,5 +17,6 @@ func NewWomanDistrictCountUsecase(r outputport.WomanDistrictRepository) inputpor
 }
 
 func (u *womanDistrictCountUsecase) GetCount(ctx context.Context, i input.GetWomanDistrictCountInput) (uint, error) {
-	return u.womanDistrictRepository.CountByDistrictWithCondition(ctx, i)
+	conditions := buildWomanDistrictConditions(i.DistrictID, i.BloodTypes, i.AgeRanges)
+	return u.womanDistrictRepository.CountByDistrict(ctx, conditions)
 }

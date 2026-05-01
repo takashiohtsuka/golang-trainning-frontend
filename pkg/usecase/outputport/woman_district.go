@@ -5,10 +5,10 @@ import (
 
 	"golang-trainning-frontend/pkg/collection"
 	"golang-trainning-frontend/pkg/querymodel"
-	"golang-trainning-frontend/pkg/usecase/input"
+	"golang-trainning-frontend/pkg/usecase/query"
 )
 
 type WomanDistrictRepository interface {
-	FindAllByDistrict(ctx context.Context, i input.GetWomanDistrictListInput) (collection.Collection[querymodel.WomanQueryModel], error)
-	CountByDistrictWithCondition(ctx context.Context, i input.GetWomanDistrictCountInput) (uint, error)
+	FindAllByDistrict(ctx context.Context, conditions []query.Condition, page uint) (collection.Collection[querymodel.WomanQueryModel], error)
+	CountByDistrict(ctx context.Context, conditions []query.Condition) (uint, error)
 }

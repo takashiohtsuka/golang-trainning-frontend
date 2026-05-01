@@ -20,9 +20,13 @@ func NewRegistry(db *gorm.DB) Registry {
 
 func (r *registry) NewAppController() controller.AppController {
 	return controller.AppController{
-		Store:              r.NewStoreController(),
-		Woman:              r.NewWomanController(),
-		WomanDistrict:      r.NewWomanDistrictController(),
-		WomanDistrictCount: r.NewWomanDistrictCountController(),
+		Store:                   r.NewStoreController(),
+		Woman:                   r.NewWomanController(),
+		WomanDistrict:           r.NewWomanDistrictController(),
+		WomanDistrictCount:      r.NewWomanDistrictCountController(),
+		ImmediateAvailableWoman: r.NewImmediateAvailableWomanController(),
+		Prefecture:              r.NewPrefectureController(),
+		District:                r.NewDistrictController(),
+		BusinessType:            r.NewBusinessTypeController(),
 	}
 }

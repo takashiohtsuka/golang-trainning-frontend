@@ -7,6 +7,7 @@ const (
 	KindWhereIn
 	KindWhereBetween
 	KindWhereNotIn
+	KindWhereBetweenOr // 同一カラムの複数 BETWEEN 条件を OR でグループ化する
 )
 
 type Condition struct {
@@ -27,6 +28,10 @@ func WhereIn(column string, values any) Condition {
 
 func WhereBetween(column string, from, to any) Condition {
 	return Condition{Kind: KindWhereBetween, Column: column, From: from, To: to}
+}
+
+func WhereBetweenOr(column string, from, to any) Condition {
+	return Condition{Kind: KindWhereBetweenOr, Column: column, From: from, To: to}
 }
 
 func WhereNotIn(column string, values any) Condition {
